@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+.hero {
+  color: white;
+  padding: 100px 0;
+}
+
+.job-card {
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.job-card:hover {
+  transform: scale(1.02);
+}
+
+.category-icon {
+  font-size: 40px;
+  color: #4caf50;
+}

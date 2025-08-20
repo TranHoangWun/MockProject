@@ -1,0 +1,36 @@
+/* jobList.css */
+.job-card {
+  border-radius: 12px;
+  /* Giảm min-height */
+  min-height: 150px; 
+}
+
+.job-logo {
+  /* Giảm kích thước logo */
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 8px;
+  background-color: #f8f9fa; 
+  padding: 4px; /* Giảm padding */
+}
+
+.job-icon {
+  cursor: pointer;
+
+  font-size: 18px;
+}
+
+
+.job-card .card-body {
+  padding: 0.75rem; 
+}
+
+.job-card .card-title {
+  font-size: 1.1rem; /* Giảm kích thước tiêu đề */
+  margin-bottom: 0.25rem !important; /* Giảm khoảng cách dưới */
+}
+
+.job-card .card-subtitle {
+  font-size: 0.85rem; /* Giảm kích thước phụ đề */
+}

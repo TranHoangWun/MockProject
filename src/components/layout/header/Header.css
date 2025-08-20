@@ -1,0 +1,39 @@
+/* Header.css */
+.navbar {
+  /* Giảm padding và min-height */
+  padding: 0.3rem 1rem !important; 
+  min-height: 30px !important; 
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  /* Giảm chiều cao logo */
+  height: 30px !important; 
+  width: auto;
+  margin-right: 8px !important;
+}
+
+.brand-text {
+  font-size: 0.9rem !important; /* Giảm kích thước chữ */
+  font-weight: bold;
+  color: white;
+}
+
+.btn-custom {
+  border: 1px solid white !important;
+  color: white !important;
+  background-color: transparent !important;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-custom:hover {
+  background-color: red !important;
+  color: white !important;
+  border-color: red !important;
+}
+
+.custom-navbar-color {
+  background-color: #8E44AD; 
+}

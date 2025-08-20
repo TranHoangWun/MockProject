@@ -11,3 +11,24 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+#root > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Chiều cao tối thiểu = chiều cao màn hình */
+}
+
+.content {
+  flex: 1; /* Chiếm phần còn lại giữa Header và Footer */
+}
+
+footer {
+  background-color: #f8f9fa; /* tương ứng bg-light */
+  text-align: center;
+  padding: 1rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
