@@ -32,10 +32,41 @@ export function register(newUser) {
   if (exists) {
     return { success: false, message: "Tên đăng nhập đã tồn tại!" };
   }
+
+  let profile = {};
+  if (newUser.role === "student") {
+    profile = {
+      fullName: "",
+      phone: "",
+      school: "",
+      address: "",
+      email: newUser.username,
+      image: null, // tạm chưa có ảnh
+    };
+  } else if (newUser.role === "employer") {
+    profile = {
+      companyName: "",
+      phone: "",
+      address: "",
+      email: newUser.username,
+      image: null,
+    };
+  } else if (newUser.role === "admin") {
+    profile = {
+      fullName: "Quản trị viên mới",
+      email: newUser.username,
+      image: null,
+    };
+  }
+
   const user = {
     id: currentUsers.length + 1,
-    ...newUser,
+    username: newUser.username,
+    password: newUser.password,
+    role: newUser.role,
+    profile,
   };
+
   currentUsers.push(user);
   return { success: true, user };
 }
