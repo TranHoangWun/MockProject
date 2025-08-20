@@ -28,7 +28,7 @@ export default function Profile() {
       return;
     }
 
-    // Tạm thời sử dụng `login` để cập nhật dữ liệu giả lập, real thì cần yêu cầu API đến server
+    // Tạm thời sử dụng login để cập nhật dữ liệu giả lập, real thì cần yêu cầu API đến server
     login({
       ...user,
       profile: form,

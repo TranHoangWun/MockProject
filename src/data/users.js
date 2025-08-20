@@ -1,5 +1,7 @@
 // src/data/users.js
-import students from "assets/images/student/student"
+import students from "assets/images/student/student";
+import employers from "assets/images/employer/employer";
+import admins from "assets/images/admin/admin";
 const users = [
   {
     id: 1,
@@ -11,7 +13,7 @@ const users = [
       phone: "0123456789",
       school: "Đại học Khoa học Huế",
       address: "Thừa Thiên Huế",
-      email: "student1@example.com",
+      email: "student1@gmail.com",
       image: students.stu1,
     }
   },
@@ -24,8 +26,8 @@ const users = [
       companyName: "Công ty ABC",
       phone: "0987654321",
       address: "Hà Nội",
-      email: "employer1@example.com",
-      
+      email: "employer1@gmail.com",
+      image: employers.abc,
     }
   },
   {
@@ -35,7 +37,8 @@ const users = [
     role: "admin",
     profile: {
       fullName: "Quản trị viên",
-      email: "admin@example.com"
+      email: "admin@gmail.com",
+      image: admins.ad1,
     }
   }
 ];
