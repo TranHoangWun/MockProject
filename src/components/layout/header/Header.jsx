@@ -41,7 +41,7 @@ function Header() {
                   <a className="nav-link" href="#jobs">Công việc</a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="#contact">Bài viết</a>
+                  <Link className="nav-link" to="/posts">Bài viết</Link>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="#about">Giới thiệu</a>
