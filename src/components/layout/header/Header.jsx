@@ -20,7 +20,7 @@ function Header() {
     <nav className="navbar navbar-expand-lg navbar-dark custom-navbar-color">
       <div className="container">
         <Link className="navbar-brand d-flex align-items-center" to={homeLink}>
-          <img src="careerconnect-white3.png" alt="Logo" className="navbar-logo" />
+          <img src="/careerconnect-white3.png" alt="Logo" className="navbar-logo" />
           <span className="brand-text">Sinh Viên Huế Jobs</span>
         </Link>
 

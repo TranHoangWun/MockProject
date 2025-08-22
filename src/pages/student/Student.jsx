@@ -48,7 +48,8 @@ function StudentDashboard() {
         job.type.toLowerCase().includes(lowerKeyword) ||
         job.location.toLowerCase().includes(lowerKeyword)) &&
       (filters.location === "Tất cả" || job.location.toLowerCase().includes(filters.location.toLowerCase())) &&
-      (filters.salary === "Tất cả" || (job.salary && job.salary.includes(filters.salary)))
+      (filters.salary === "Tất cả" || (job.salary && job.salary.includes(filters.salary))) &&
+      (filters.category === "Tất cả" || job.category === filters.category)
   );
 
   // Sắp xếp
@@ -69,6 +70,7 @@ function StudentDashboard() {
   } else if (filters.sort === "title_desc") {
     filteredJobs.sort((a, b) => b.title.localeCompare(a.title));
   }
+  
 
 
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);

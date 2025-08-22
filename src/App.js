@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/layout/ProtectRoute.jsx";
 import IntroPage from "./pages/intro/Intro.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Posts from "./components/Posts";
+import PostDetail from "pages/student/postdetail/PostDetail.jsx";
 
 // Component chứa logic render chính
 function AppContent() {
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/posts" element={<ProtectedRoute><Posts/></ProtectedRoute>} />
+          <Route path="/posts/:id" element={<ProtectedRoute><PostDetail/></ProtectedRoute>} />
           {/* Lỗi 404 hoặc trang không tìm thấy */}
           <Route path="*" element={<div>Trang không tìm thấy.</div>} />
         </Routes>

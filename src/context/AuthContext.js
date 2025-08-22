@@ -1,5 +1,7 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
+import users from "data/users";
+import { getCurrentUser, logout } from "../services/authService";
 
 export const AuthContext = createContext();
 
@@ -16,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.removeItem("currentUser");
   };
 
   // isAuthenticated = có user hay không
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   const userRole = user?.role || null;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, userRole }}>
+    <AuthContext.Provider value={{ user,setUser, login, logout, isAuthenticated, userRole }}>
       {children}
     </AuthContext.Provider>
   );
