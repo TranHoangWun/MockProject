@@ -8,6 +8,7 @@ import studioLogo from "./studio.png";
 import shopeeLogo from "./shopee.png"
 import xyzLogo from "./xyz.png"
 import weLogo from "./careerconnect-white.png"
+
 const logos = {
     cafeMay: cafeMayLogo,
     giaSu: giaSuLogo,
