@@ -1,0 +1,211 @@
+.intro-container {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* ---------------- Hero ---------------- */
+.hero {
+    position: relative;
+    height: 85vh;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.hero-content {
+    position: relative;
+    text-align: center;
+    color: #fff;
+    z-index: 1;
+    padding: 20px;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeSlideUp 1s ease-out forwards;
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    margin-bottom: 25px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeSlideUp 1.2s ease-out forwards;
+}
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Base styles */
+.hero-btn-primary,
+.hero-btn-secondary {
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.9);
+    animation: fadeScaleUp 0.8s ease-out forwards;
+}
+
+/* Animation delay cho từng nút */
+.hero-btn-primary {
+    background: #6c63ff;
+    color: #fff;
+    animation-delay: 1.4s;
+}
+
+.hero-btn-primary:hover {
+    background: #5548d9;
+}
+
+.hero-btn-secondary {
+    background: #fff;
+    color: #6c63ff;
+    border: 2px solid #6c63ff;
+    animation-delay: 1.6s;
+}
+
+.hero-btn-secondary:hover {
+    background: #6c63ff;
+    color: #fff;
+}
+
+/* Keyframes */
+@keyframes fadeScaleUp {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.scroll-down {
+    margin-top: 30px;
+    font-size: 1.5rem;
+    animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(8px);
+    }
+}
+
+/* ---------------- Features ---------------- */
+.features {
+    padding: 80px 20px;
+    text-align: center;
+    background: #f8f8ff;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 50px;
+    color: #4b0082;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background: #fff;
+    padding: 30px 20px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card img {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(108, 99, 255, 0.2);
+}
+
+.feature-card h3 {
+    color: #6c63ff;
+    margin-bottom: 10px;
+}
+
+/* ---------------- About ---------------- */
+.about {
+    padding: 100px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #6c63ff, #b39ddb);
+    color: #fff;
+}
+
+.about h2 {
+    font-size: 2.2rem;
+    margin-bottom: 25px;
+}
+
+.about p {
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.about-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 14px 28px;
+    background: #fff;
+    color: #6c63ff;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.about-btn:hover {
+    background: #4b0082;
+    color: #fff;
+}
+
+/* ---------------- Footer ---------------- */
+.footer {
+    background: #222;
+    color: #bbb;
+    text-align: center;
+    padding: 20px 10px;
+    font-size: 0.9rem;
+}

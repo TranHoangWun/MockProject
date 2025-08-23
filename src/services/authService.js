@@ -1,7 +1,12 @@
 import users from "../data/users";
 
-// Giả lập DB local (cập nhật trong session)
-let currentUsers = [...users];
+// Lấy danh sách user từ localStorage, nếu chưa có thì dùng data/users.js
+let currentUsers = JSON.parse(localStorage.getItem("users")) || [...users];
+
+// Cập nhật danh sách user vào localStorage
+function saveUsers() {
+  localStorage.setItem("users", JSON.stringify(currentUsers));
+}
 
 // Đăng nhập
 export function login(username, password) {
@@ -41,7 +46,7 @@ export function register(newUser) {
       school: "",
       address: "",
       email: newUser.username,
-      image: null, // tạm chưa có ảnh
+      image: null,
     };
   } else if (newUser.role === "employer") {
     profile = {
@@ -68,5 +73,19 @@ export function register(newUser) {
   };
 
   currentUsers.push(user);
+  saveUsers(); //lưu vào localStorage
+
   return { success: true, user };
+}
+
+//Hàm update user (dùng khi sửa profile, avatar, ...)
+export function updateUser(updatedUser) {
+  const index = currentUsers.findIndex((u) => u.id === updatedUser.id);
+  if (index !== -1) {
+    currentUsers[index] = updatedUser;
+    saveUsers();
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser)); // cập nhật luôn currentUser
+    return { success: true, user: updatedUser };
+  }
+  return { success: false, message: "Không tìm thấy user!" };
 }

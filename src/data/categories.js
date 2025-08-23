@@ -8,5 +8,7 @@ const categories = [
   "Dịch vụ",
   "Sản xuất",
   "Xây dựng",
+  "Thiết kế",
+  "Ngoại ngữ",
 ];
 export default categories;

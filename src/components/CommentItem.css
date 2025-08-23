@@ -1,0 +1,92 @@
+.comment {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+  margin-top: 10px;
+}
+
+.comment-body {
+  flex: 1;
+  background: #f9f9f9;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comment-name {
+  font-weight: 600;
+}
+
+.comment-date {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.comment-text {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+}
+
+.delete-comment-btn {
+  background: none;
+  border: none;
+  color: #d9534f;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.delete-comment-btn:hover {
+  text-decoration: underline;
+}
+.comment-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.comment-form input {
+  flex: 1;
+}
+
+.comment-actions button {
+  margin-left: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.edit-comment-btn {
+  color: #007bff;
+}
+
+.save-btn {
+  color: green;
+}
+
+.cancel-btn {
+  color: gray;
+}
+
+.delete-comment-btn {
+  color: #d9534f;
+}

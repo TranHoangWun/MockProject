@@ -9,20 +9,21 @@ import coopLogo from "./coopmart.png";
 import huongLogo from "./songhuong.png";
 import studioLogo from "./studio.png";
 import shopeeLogo from "./shopee.png"
-
+import citimg from "./cit.png"
 
 const employers = {
     lg: lgimg,
     ipc: ipcimg,
     disa: disaimg,
-    xyz:xyzimg,
+    xyz: xyzimg,
     cafeMay: cafeMayLogo,
-    giaSu:giaSuLogo,
+    giaSu: giaSuLogo,
     abc: abcLogo,
     huong: huongLogo,
     studio: studioLogo,
     shopee: shopeeLogo,
     coopmart: coopLogo,
-  
+    cit: citimg,
 }
+
 export default employers;
