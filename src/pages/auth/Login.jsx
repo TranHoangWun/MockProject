@@ -20,7 +20,7 @@ export default function LoginPage() {
       login(user);
       switch (user.role) {
         case "student":
-          navigate("/");
+          navigate("/student");
           break;
         case "employer":
           navigate("/employer");
@@ -111,7 +111,7 @@ export default function LoginPage() {
             `url(${HueLogo})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-           backgroundRepeat: "no-repeat",
+          backgroundRepeat: "no-repeat",
         }}
       ></div>
     </div>

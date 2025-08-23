@@ -1,15 +1,19 @@
+// component/header/Header.jsx
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
+import { NavLink } from "react-router-dom";
 import "./Header.css";
+import { FaUser, FaSearch } from "react-icons/fa";
 
 function Header() {
   const { user, logout, userRole } = useContext(AuthContext);
+  const { pathname, hash } = useLocation(); //  lấy pathname & hash từ React Router
 
   // Logo và link chính theo role
   const homeLink =
     userRole === "student"
-      ? "/"
+      ? "/student"
       : userRole === "employer"
         ? "/employer"
         : userRole === "admin"
@@ -38,13 +42,19 @@ function Header() {
             {userRole === "student" && (
               <>
                 <li className="nav-item">
-                  <a className="nav-link" href="#jobs">Công việc</a>
+                  <NavLink className="nav-link" to="/student">
+                    Công việc
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/posts">Bài viết</Link>
+                  <NavLink className="nav-link" to="/posts">
+                    Bài viết
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="#about">Giới thiệu</a>
+                  <NavLink className="nav-link" to="/about">
+                    Giới thiệu
+                  </NavLink>
                 </li>
               </>
             )}
@@ -52,20 +62,18 @@ function Header() {
             {userRole === "employer" && (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/employer">Quản lý tuyển dụng</Link>
+                  <NavLink className="nav-link" to="/employer">Quản lý tuyển dụng</NavLink>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/profile">Hồ sơ công ty</Link>
+                  <NavLink className="nav-link" to="/profile">Hồ sơ công ty</NavLink>
                 </li>
               </>
             )}
 
             {userRole === "admin" && (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/admin">Dashboard Admin</Link>
-                </li>
-              </>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/admin">Dashboard Admin</NavLink>
+              </li>
             )}
 
             {user ? (
@@ -79,9 +87,9 @@ function Header() {
                       style={{ width: "35px", height: "35px", objectFit: "cover" }}
                     />
                   )}
-                  <Link to="/profile" className="nav-link mb-0">
+                  <NavLink to="/profile" className="nav-link mb-0">
                     Xin chào, {user.profile?.companyName || user.profile?.fullName || user.username}
-                  </Link>
+                  </NavLink>
                 </li>
                 <li className="nav-item">
                   <button
@@ -92,7 +100,6 @@ function Header() {
                     Đăng xuất
                   </button>
                 </li>
-
               </>
             ) : (
               <>
@@ -108,7 +115,6 @@ function Header() {
                 </li>
               </>
             )}
-
           </ul>
         </div>
       </div>

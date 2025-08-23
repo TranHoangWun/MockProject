@@ -20,7 +20,7 @@
 }
 
 .job-card .card-body {
-  padding: 0.4rem;
+  padding: 0.3rem;
 }
 
 .job-card .card-title {
@@ -34,12 +34,57 @@
   font-size: 0.9rem;
 }
 
-/*  mô tả ngắn */
-.description-text {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 0.2rem;
-  white-space: nowrap;
+.company-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* Giới hạn tối đa 2 dòng */
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2rem;
+  /* đảm bảo dễ đọc */
+  max-height: 2.4rem;
+  /* 2 dòng = 2 * line-height */
+}
+
+.badge1 {
+  display: inline-block;
+  background-color: #f0f1f2;
+  /* màu nền sáng */
+  color: #212529;
+  /* chữ tối */
+  font-size: 0.75rem;
+  /* chữ nhỏ gọn */
+  font-weight: 630;
+  padding: 0.3em 0.6em;
+  /* padding gọn hơn */
+  border-radius: 0.375rem;
+  /* bo góc */
+  margin-top: -5px;
+  margin-bottom: -5px;
+
+}
+
+.job-card .badge {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.55em 0.8em;
+}
+
+.job-card .card-text.small {
+  margin-top: -15px;
+
+}
+
+/*  mô tả ngắn */
+.job-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* hiển thị tối đa 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4rem;
+  max-height: 2.8rem;
+  /* 2 dòng = 2 * line-height */
 }

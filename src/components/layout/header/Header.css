@@ -1,23 +1,35 @@
-/* Header.css */
 .navbar {
-  /* Giảm padding và min-height */
-  padding: 0.3rem 1rem !important; 
-  min-height: 30px !important; 
+  padding: 0.2rem 0.8rem !important;
+  /* giảm padding */
+  min-height: 30px !important;
+  /* thấp hơn một chút */
   display: flex;
   align-items: center;
 }
 
 .navbar-logo {
-  /* Giảm chiều cao logo */
-  height: 30px !important; 
+  height: 30px !important;
+  /* logo nhỏ hơn chút */
   width: auto;
-  margin-right: 8px !important;
+  margin-right: 6px !important;
 }
 
 .brand-text {
-  font-size: 0.9rem !important; /* Giảm kích thước chữ */
+  font-size: 1rem !important;
   font-weight: bold;
   color: white;
+  white-space: nowrap;
+  line-height: 1;
+  /* giúp chữ cân dọc */
+}
+
+.navbar-nav .nav-link {
+  padding: 0.25rem 0.8rem;
+  /* giảm padding để link gọn */
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  /* căn giữa chữ theo chiều dọc */
 }
 
 .btn-custom {
@@ -26,7 +38,19 @@
   background-color: transparent !important;
   transition: all 0.3s ease;
   cursor: pointer;
+
+  height: 35px;
+  /* cùng chiều cao với nav-link */
+  padding: 0 0.6rem !important;
+  /* chỉ padding ngang, bỏ padding trên dưới */
+  font-size: 0.8 rem;
+
+  display: flex;
+  /* căn giữa */
+  align-items: center;
+  justify-content: center;
 }
+
 
 .btn-custom:hover {
   background-color: red !important;
@@ -35,5 +59,28 @@
 }
 
 .custom-navbar-color {
-  background-color: #8E44AD; 
+  background-color: #8E44AD;
+  /* giữ nguyên màu nền */
+}
+
+.navbar-nav .nav-link {
+  display: flex;
+  align-items: center;
+  /* căn giữa theo chiều dọc */
+  height: 35px;
+  /* cùng chiều cao với .navbar */
+  line-height: 35px;
+  /* đảm bảo chữ nằm giữa */
+  padding: 0 0.8rem;
+  /* bỏ padding trên dưới, chỉ giữ 2 bên */
+  font-size: 0.9rem;
+  color: white !important;
+}
+
+.navbar-nav .nav-link.active {
+  font-weight: bold;
+  border-bottom: 2px solid #fff;
+  /* gạch chân */
+  color: #FFD700 !important;
+  /* vàng nổi bật */
 }

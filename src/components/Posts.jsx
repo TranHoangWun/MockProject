@@ -19,6 +19,7 @@ export default function Posts() {
   }, [posts]);
 
   const [sortOption, setSortOption] = useState("newest");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -62,26 +63,26 @@ export default function Posts() {
     alert(`Bạn đã báo cáo bài viết #${id}. Quản trị viên sẽ xem xét.`);
   };
 
-  
-    const handleImageChange = (e) => {
-  const files = Array.from(e.target.files);
-  const readers = files.map(
-    (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result); // base64
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      })
-  );
 
-  Promise.all(readers).then((base64Images) => {
-    setFormData({
-      ...formData,
-      images: [...formData.images, ...base64Images], //lưu base64 thay vì objectURL
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const readers = files.map(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result); // base64
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        })
+    );
+
+    Promise.all(readers).then((base64Images) => {
+      setFormData({
+        ...formData,
+        images: [...formData.images, ...base64Images], //lưu base64 thay vì objectURL
+      });
     });
-  });
-};
+  };
 
 
   // Thêm bài viết mới
@@ -124,7 +125,7 @@ export default function Posts() {
       (p) => p.author?.name === (user.profile?.fullName || user.username)
     );
   } else if (activeTab === "useful") {
-    filteredPosts = posts.filter((p) => Array.isArray(p.likes) &&  p.likes.includes(user.id));
+    filteredPosts = posts.filter((p) => Array.isArray(p.likes) && p.likes.includes(user.id));
   }
 
   // search
@@ -139,6 +140,9 @@ export default function Posts() {
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (sortOption === "newest") {
       return new Date(b.date) - new Date(a.date);
+    }
+    if (sortOption === "oldest") {
+      return new Date(a.date) - new Date(b.date);
     }
     if (sortOption === "alphabet") return a.jobTitle.localeCompare(b.jobTitle);
     if (sortOption === "useful")
@@ -205,6 +209,7 @@ export default function Posts() {
           onChange={(e) => setSortOption(e.target.value)}
         >
           <option value="newest">Mới nhất</option>
+          <option value="oldest">Cũ nhất</option>
           <option value="alphabet">Theo chữ cái</option>
           <option value="useful">Hữu ích nhất</option>
         </select>
@@ -260,9 +265,8 @@ export default function Posts() {
                   Xem chi tiết
                 </Link>
                 <button
-                  className={`btn btn-sm ${
-                    isLiked ? "btn-success" : "btn-outline-success"
-                  }`}
+                  className={`btn btn-sm ${isLiked ? "btn-success" : "btn-outline-success"
+                    }`}
                   onClick={() => handleLike(post.id)}
                 >
                   Hữu ích ({likesArray.length})
