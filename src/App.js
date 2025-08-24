@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import StudentDashboard from "./pages/student/Student.jsx";
@@ -27,7 +27,13 @@ function AppContent() {
       <Header />
       <div className="content" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Routes>
+
+
+
+          {/* Chuyển hướng từ đường dẫn gốc "/" sang "/intro"   // <Route path="/" element={<IntroPage />} /> */}
+          <Route path="/" element={<Navigate to="/intro" replace />} />
           <Route path="/intro" element={<IntroPage />} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
