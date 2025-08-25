@@ -1,5 +1,5 @@
 // pages/Student.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Banner from "components/layout/banner/Banner.jsx";
 import JobList from "components/joblist/JobList.jsx";
 import Pagination from "components/pagination/Pagination.jsx";
@@ -49,6 +49,56 @@ function StudentDashboard() {
   const [changeToken, setChangeToken] = useState(0);
   const handleDataChange = () => setChangeToken((t) => t + 1);
 
+  // Thêm state để lưu trữ công việc từ employerJobs
+  const [employerJobs, setEmployerJobs] = useState([]);
+
+  // Tải dữ liệu công việc từ localStorage khi component mounts hoặc changeToken thay đổi
+  useEffect(() => {
+    try {
+      // Lấy danh sách công việc từ nhà tuyển dụng
+      const allEmployerJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
+      
+      // Chỉ lấy những công việc đang đăng
+      const activeJobs = allEmployerJobs.filter(job => job.status === 'Đang đăng');
+      
+      // Chuyển đổi định dạng để phù hợp với cấu trúc dữ liệu công việc hiện có
+      const formattedJobs = activeJobs.map(job => ({
+        id: job.id,
+        title: job.jobTitle,
+        company: job.companyName || "Nhà tuyển dụng",
+        type: job.employmentType || "Toàn thời gian",
+        location: job.location || job.district || "Huế",
+        description: job.description || "Không có mô tả",
+        salary: job.salaryRange || "Thỏa thuận",
+        requirements: job.requirements || "",
+        employerId: job.employerId,
+        logo: job.companyLogo || null,
+        deadline: job.deadline || "Chưa cập nhật",
+        publication_date: job.date || "Chưa cập nhật",
+        contactEmail: job.contactEmail,
+        contactPhone: job.contactPhone
+      }));
+      
+      setEmployerJobs(formattedJobs);
+    } catch (error) {
+      console.error("Lỗi khi tải công việc từ nhà tuyển dụng:", error);
+    }
+  }, [changeToken]);
+
+  // Kết hợp dữ liệu công việc từ cả hai nguồn
+  const allJobs = useMemo(() => {
+    // Sử dụng Map để xử lý trùng lặp (nếu có) dựa trên ID
+    const jobMap = new Map();
+    
+    // Thêm jobs từ dữ liệu tĩnh
+    jobs.forEach(job => jobMap.set(job.id, job));
+    
+    // Thêm hoặc ghi đè với jobs từ nhà tuyển dụng
+    employerJobs.forEach(job => jobMap.set(job.id, job));
+    
+    return Array.from(jobMap.values());
+  }, [employerJobs]);
+
   // Reset filter khi là student (giống code gốc)
   React.useEffect(() => {
     if (user?.role === "student") {
@@ -96,7 +146,7 @@ function StudentDashboard() {
   }, [allApplied, currentUserId]);
 
   // ====== Lọc & sắp xếp như cũ ======
-  let filteredJobs = jobs.filter(
+  let filteredJobs = allJobs.filter(
     (job) =>
       (job.title.toLowerCase().includes(lowerKeyword) ||
         job.company.toLowerCase().includes(lowerKeyword) ||

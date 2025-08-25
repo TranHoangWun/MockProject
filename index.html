@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinh Viên Huế Jobs - Tài khoản nhà tuyển dụng</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">
+                <img src="assets/logo.png" alt="Sinh Viên Huế Jobs">
+                <span>Sinh Viên Huế Jobs</span>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="#">Quản lý tuyển dụng</a></li>
+                <li><a href="#">Hỗ sơ công ty</a></li>
+            </ul>
+        </nav>
+        <div class="user-menu">
+            <span>Xin chào, Hoàng anh béo</span>
+            <button class="btn btn-primary">Đăng xuất</button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="role-info">
+            <p>Bạn đang đăng nhập với vai trò <strong>Nhà tuyển dụng</strong>.</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="number">4</div>
+                <div class="label">Tổng số tin đăng</div>
+            </div>
+            <div class="stat-card active">
+                <div class="number">3</div>
+                <div class="label">Ứng viên</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="number">15</div>
+                <div class="label">Đã xóa (do nhà tuyển dụng)</div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="panel job-management">
+                <h2>Quản lý tuyển dụng</h2>
+                <ul class="action-links">
+                    <li><a href="#" class="link-primary">Đăng tin tuyển dụng mới</a></li>
+                    <li><a href="#" class="link-primary">Quản lý tin tuyển dụng đã đăng</a></li>
+                    <li><a href="#" class="link-primary">Xem danh sách ứng viên</a></li>
+                </ul>
+            </div>
+
+            <div class="panel account-info">
+                <h2>Thông tin tài khoản</h2>
+                <ul class="action-links">
+                    <li><a href="#" class="link-primary">Cập nhật hồ sơ công ty</a></li>
+                    <li><a href="#" class="link-primary">Nâng cấp gói dịch vụ</a></li>
+                    <li><a href="#" class="link-primary">Cài đặt tài khoản</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="job-listings">
+            <h2>Tin tuyển dụng đã đăng</h2>
+            <table class="job-table">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Ngày đăng</th>
+                        <th>Trạng thái</th>
+                        <th>Ứng viên</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Game</td>
+                        <td>24/8/2025</td>
+                        <td><span class="status active">Đang đăng</span></td>
+                        <td><a href="#" class="view-button">Xem (1)</a></td>
+                        <td><button class="btn btn-danger">Xóa</button></td>
+                    </tr>
+                    <tr>
+                        <td>ádasdasd</td>
+                        <td>24/8/2025</td>
+                        <td><span class="status active">Đang đăng</span></td>
+                        <td><a href="#" class="view-button">Xem (1)</a></td>
+                        <td><button class="btn btn-danger">Xóa</button></td>
+                    </tr>
+                    <tr>
+                        <td>Diễn viên phim 2 người ôm nhau</td>
+                        <td>24/8/2025</td>
+                        <td><span class="status active">Đang đăng</span></td>
+                        <td><a href="#" class="view-button">Xem (1)</a></td>
+                        <td><button class="btn btn-danger">Xóa</button></td>
+                    </tr>
+                    <tr>
+                        <td>anhqwe</td>
+                        <td>24/8/2025</td>
+                        <td><span class="status active">Đang đăng</span></td>
+                        <td><a href="#" class="view-button">Xem (0)</a></td>
+                        <td><button class="btn btn-danger">Xóa</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="deleted-jobs">
+            <h2>Các tin đã xóa</h2>
+            <table class="job-table">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Ngày đăng</th>
+                        <th>Lý do</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>adsaaa</td>
+                        <td>24/8/2025</td>
+                        <td><span class="delete-reason">Nhà tuyển dụng đã xóa</span></td>
+                    </tr>
+                    <tr>
+                        <td>qxeqweweqweq</td>
+                        <td>24/8/2025</td>
+                        <td><span class="delete-reason">Nhà tuyển dụng đã xóa</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2023 Sinh Viên Huế Jobs. Tất cả quyền được bảo lưu.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

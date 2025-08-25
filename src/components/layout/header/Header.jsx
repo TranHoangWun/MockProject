@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import { NavLink } from "react-router-dom";
 import "./Header.css";
-import { FaUser, FaSearch } from "react-icons/fa";
+import { FaUser, FaSearch, FaEnvelope } from "react-icons/fa";
 
 function Header() {
   const { user, logout, userRole } = useContext(AuthContext);
@@ -52,6 +52,11 @@ function Header() {
                   </NavLink>
                 </li>
                 <li className="nav-item">
+                  <NavLink className="nav-link" to="/messages">
+                    Tin nhắn <FaEnvelope className="ms-1" />
+                  </NavLink>
+                </li>
+                <li className="nav-item">
                   <NavLink className="nav-link" to="/about">
                     Giới thiệu
                   </NavLink>
@@ -63,6 +68,11 @@ function Header() {
               <>
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/employer">Quản lý tuyển dụng</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" to="/messages">
+                    Tin nhắn <FaEnvelope className="ms-1" />
+                  </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/profile">Hồ sơ công ty</NavLink>

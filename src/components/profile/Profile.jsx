@@ -6,6 +6,7 @@ export default function Profile() {
   const { user, setUser } = useAuth(); // login -> setUser
   const [editing, setEditing] = useState(false);
   const [showChangePass, setShowChangePass] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState(""); // Thêm state cho thông báo
 
   // Chuẩn hóa socialLinks về dạng [{name, url}]
   const normalizeLinks = (links) => {
@@ -104,6 +105,11 @@ export default function Profile() {
 
     updateUser(updatedUser); // Lưu localStorage
     setUser(updatedUser); // Update UI ngay
+    
+    // Nếu là nhà tuyển dụng, cập nhật trong employerProfiles và tin tuyển dụng
+    if (user.role === "employer") {
+      updateEmployerProfile(updatedUser);
+    }
 
     // reset
     setEditing(false);
@@ -113,6 +119,65 @@ export default function Profile() {
     setConfirmPassword("");
     setError("");
   };
+  
+  // Hàm mới để cập nhật hồ sơ nhà tuyển dụng
+  const updateEmployerProfile = (updatedUser) => {
+    try {
+      const userId = parseInt(updatedUser.id);
+      console.log(`Cập nhật hồ sơ nhà tuyển dụng ID: ${userId}`);
+      
+      // Lấy và cập nhật employerProfiles
+      const profiles = JSON.parse(localStorage.getItem('employerProfiles') || '{}');
+      
+      profiles[userId] = {
+        companyName: updatedUser.profile.companyName || "Nhà tuyển dụng",
+        profileImage: updatedUser.profile.image,
+        contactEmail: updatedUser.profile.email || "",
+        contactPhone: updatedUser.profile.phone || "", // Quan trọng: lưu số điện thoại
+        address: updatedUser.profile.address || ""
+      };
+      
+      localStorage.setItem('employerProfiles', JSON.stringify(profiles));
+      
+      // Cập nhật số điện thoại trong tin tuyển dụng
+      updateEmployerJobContacts(userId, {
+        contactPhone: updatedUser.profile.phone,
+        contactEmail: updatedUser.profile.email
+      });
+      
+      setUpdateMessage("Đã cập nhật thông tin thành công");
+      setTimeout(() => setUpdateMessage(""), 3000);
+      
+    } catch (error) {
+      console.error("Lỗi khi cập nhật hồ sơ nhà tuyển dụng:", error);
+    }
+  };
+  
+  // Hàm cập nhật thông tin liên hệ trong tin tuyển dụng
+  const updateEmployerJobContacts = (employerId, contactInfo) => {
+    try {
+      // Lấy tất cả tin tuyển dụng
+      const allJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
+      
+      // Cập nhật thông tin liên hệ cho các tin của nhà tuyển dụng này
+      const updatedJobs = allJobs.map(job => {
+        if (parseInt(job.employerId) === employerId) {
+          return {
+            ...job,
+            contactPhone: contactInfo.contactPhone || job.contactPhone,
+            contactEmail: contactInfo.contactEmail || job.contactEmail
+          };
+        }
+        return job;
+      });
+      
+      localStorage.setItem('employerJobs', JSON.stringify(updatedJobs));
+      console.log(`Đã cập nhật thông tin liên hệ cho ${updatedJobs.filter(j => parseInt(j.employerId) === employerId).length} tin tuyển dụng`);
+      
+    } catch (error) {
+      console.error("Lỗi khi cập nhật thông tin liên hệ trong tin tuyển dụng:", error);
+    }
+  };
 
   const isStudent = user.role === "student";
 
@@ -121,6 +186,11 @@ export default function Profile() {
       <h2>
         Thông tin cá nhân ({isStudent ? "Sinh viên" : "Nhà tuyển dụng"})
       </h2>
+
+      {/* Hiển thị thông báo cập nhật thành công */}
+      {updateMessage && (
+        <div className="alert alert-success mt-3">{updateMessage}</div>
+      )}
 
       {!editing ? (
         <>
