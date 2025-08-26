@@ -162,7 +162,7 @@ const EmployerPostJob = () => {
       return;
     }
     
-    // Make sure employerId is a number
+    // Make sure employerId is a number and consistently stored
     const employerId = parseInt(user.id);
 
     // Get employer info from profile
@@ -186,10 +186,12 @@ const EmployerPostJob = () => {
     const jobPosting = {
       ...formData,
       id: Date.now(),
+      title: formData.jobTitle, // Add title field for consistency
       date: formattedDate,
+      publication_date: formattedDate, // Add publication_date for consistency 
       status: 'Đang đăng',
       applicants: 0,
-      employerId: employerId, // Đảm bảo employerId được gán đúng
+      employerId: employerId,
       companyName: companyName,
       companyLogo: companyLogo,
       // Tự động gán thông tin liên hệ từ profile
@@ -198,11 +200,16 @@ const EmployerPostJob = () => {
       contactAddress: contactInfo.contactAddress
     };
     
+    console.log("Creating new job posting:", jobPosting);
+    
     // Save to localStorage
     try {
       const existingJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
       existingJobs.unshift(jobPosting); // Sắp xếp tin mới nhất lên đầu
       localStorage.setItem('employerJobs', JSON.stringify(existingJobs));
+      
+      // Force data reload in student view by updating a timestamp
+      localStorage.setItem('jobsLastUpdated', Date.now().toString());
       
       alert('Đăng tin thành công!');
       navigate('/employer');

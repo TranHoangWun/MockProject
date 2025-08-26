@@ -21,13 +21,47 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("currentUser");
   };
 
+  // Add this to the deleteAccount function or wherever account deletion is handled
+  const deleteAccount = (userId) => {
+    // Get existing users
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // Find the user to delete
+    const userToDelete = users.find(u => u.id === userId);
+    
+    // Check if user is an employer
+    if (userToDelete && userToDelete.role === 'employer') {
+      // Clean up associated job listings
+      const employerJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
+      const updatedJobs = employerJobs.filter(job => job.employerId !== userId);
+      localStorage.setItem('employerJobs', JSON.stringify(updatedJobs));
+      
+      // Clean up employer profiles
+      try {
+        const profiles = JSON.parse(localStorage.getItem('employerProfiles') || '{}');
+        if (profiles[userId]) {
+          delete profiles[userId];
+          localStorage.setItem('employerProfiles', JSON.stringify(profiles));
+        }
+      } catch (error) {
+        console.error("Error cleaning up employer profiles:", error);
+      }
+    }
+    
+    // Remove the user
+    const updatedUsers = users.filter(u => u.id !== userId);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    
+    // ...rest of the deletion logic
+  };
+
   // isAuthenticated = có user hay không
   const isAuthenticated = !!user;
   // userRole lấy từ user.role 
   const userRole = user?.role || null;
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, isAuthenticated, userRole }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, isAuthenticated, userRole, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

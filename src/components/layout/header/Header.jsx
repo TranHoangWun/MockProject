@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import { NavLink } from "react-router-dom";
 import "./Header.css";
-import { FaUser, FaSearch, FaEnvelope } from "react-icons/fa";
+import { FaUser, FaSearch, FaEnvelope, FaUserShield } from "react-icons/fa";
 
 function Header() {
   const { user, logout, userRole } = useContext(AuthContext);
@@ -115,12 +115,17 @@ function Header() {
               <>
                 <li className="nav-item">
                   <Link to="/login" className="btn btn-outline-light me-2">
-                    Đăng nhập
+                    <FaUser className="me-1" /> Đăng nhập
                   </Link>
                 </li>
                 <li className="nav-item">
                   <Link to="/register" className="btn btn-light">
-                    Đăng ký
+                    <FaUser className="me-1" /> Đăng ký
+                  </Link>
+                </li>
+                <li className="nav-item ms-2">
+                  <Link to="/login?role=admin" className="btn btn-danger">
+                    <FaUserShield className="me-1" /> Admin
                   </Link>
                 </li>
               </>

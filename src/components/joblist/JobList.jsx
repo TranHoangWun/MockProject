@@ -38,7 +38,6 @@ function JobCard({
   job,
   isSaved,
   appliedStatus,
-  activeTab,
   toggleFavorite,
   onReport,
   onApply,
@@ -47,65 +46,58 @@ function JobCard({
   onContact
 }) {
   return (
-    <div className="card mb-1 shadow-sm job-card d-flex flex-column justify-content-between">
+    <div className="card mb-3 shadow-sm job-card">
       <div className="card-body">
-        {/* Logo + Tiêu đề/Tên công ty */}
-        <div className="d-flex align-items-start mb-2">
+        {/* Logo + Title + Company */}
+        <div className="d-flex align-items-start mb-3">
           <img
             src={job.logo || "/default-logo.png"}
             alt={job.company}
             className="job-logo-small me-3"
           />
           <div>
-            <h5 className="card-title mb-0">{job.title}</h5>
-            <p className="card-subtitle text-muted small company-name m-0">
+            <h5 className="card-title mb-1">{job.title}</h5>
+            <p className="card-subtitle text-muted small company-name mb-0">
               {job.company}
             </p>
           </div>
         </div>
 
-        {/* Tag */}
-        <div className="mb-0 d-flex flex-wrap">
+        {/* Tags */}
+        <div className="mb-2 d-flex flex-wrap">
           <span className="badge1 me-2">{job.location}</span>
           <span className="badge1 me-2">{job.type}</span>
-          <span className="badge1">
-            {job.salary || "Thỏa thuận"}
-          </span>
+          <span className="badge1">{job.salary || "Thỏa thuận"}</span>
         </div>
 
-        {/* Mô tả ngắn */}
-        <p className="card-text job-description mt-2">
-          {job.description}
-        </p>
-        <p className="card-text text-muted small mb-0">
-          Đăng ngày: {job.publication_date} -  Hạn nộp: {job.deadline}
+        {/* Description */}
+        <p className="card-text job-description">{job.description}</p>
+        <p className="card-text text-muted small">
+          Đăng ngày: {job.publication_date} - Hạn nộp: {job.deadline}
         </p>
       </div>
 
-      {/* Buttons */}
-      <div className="d-flex justify-content-between align-items-center p-3 pt-0">
-        <div className="d-flex align-items-center gap-2 flex-wrap">
+      {/* Buttons - Updated to ensure visibility */}
+      <div className="job-actions">
+        <div className="d-flex align-items-center flex-wrap button-container">
           {appliedStatus ? (
             <>
-              {(appliedStatus === "applied" ||
-                appliedStatus === "pending") && (
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => onCancelApply(job)}
-                  >
-                    Hủy ứng tuyển
-                  </Button>
-                )}
-              <span className={`badge ${statusBadgeClass(appliedStatus)}`}>
-                {appliedStatus}
-              </span>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={() => onCancelApply(job)}
+                className="action-button"
+              >
+                Hủy ứng tuyển
+              </Button>
+              <span className={`badge bg-secondary`}>{appliedStatus}</span>
             </>
           ) : (
-            <Button
-              variant="success"
-              size="sm"
+            <Button 
+              variant="success" 
+              size="sm" 
               onClick={() => onApply(job)}
+              className="action-button"
             >
               Ứng tuyển
             </Button>
@@ -115,21 +107,22 @@ function JobCard({
             variant="outline-primary"
             size="sm"
             onClick={() => onViewDetail(job)}
+            className="action-button"
           >
             Xem chi tiết
           </Button>
-          
-          {/* Thêm nút Liên hệ */}
+
           <Button
             variant="outline-info"
             size="sm"
             onClick={() => onContact(job)}
+            className="action-button"
           >
             Liên hệ
           </Button>
         </div>
 
-        <div>
+        <div className="job-icons">
           {isSaved ? (
             <FaHeart
               className="me-3 text-danger job-icon"
@@ -197,10 +190,88 @@ function JobList({
   // Report
   const [showReport, setShowReport] = useState(false);
   const [reportJob, setReportJob] = useState(null);
+  const [reportForm, setReportForm] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    email: '',
+    content: ''
+  });
+  
   const onReport = (job) => {
     setReportJob(job);
+    // Pre-fill form with user data if available
+    if (user && user.profile) {
+      setReportForm({
+        name: user.profile.fullName || '',
+        phone: user.profile.phone || '',
+        address: user.profile.address || '',
+        email: user.profile.email || '',
+        content: ''
+      });
+    } else {
+      setReportForm({
+        name: '',
+        phone: '',
+        address: '',
+        email: '',
+        content: ''
+      });
+    }
     setShowReport(true);
   };
+  
+  const handleReportFormChange = (e) => {
+    const { name, value } = e.target;
+    setReportForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const handleSubmitReport = () => {
+    // Validate form
+    if (!reportForm.name || !reportForm.email) {
+      alert("Vui lòng điền đầy đủ họ tên và email!");
+      return;
+    }
+    
+    try {
+      // Get existing reports or create new array
+      const existingReports = JSON.parse(localStorage.getItem("jobReports") || "[]");
+      
+      // Create new report
+      const newReport = {
+        id: Date.now(),
+        type: 'job',
+        jobId: reportJob.id,
+        jobTitle: reportJob.title,
+        companyName: reportJob.company,
+        reporterId: user ? user.id : 0,
+        reportedUserId: reportJob.employerId,
+        reason: reportForm.content || "Báo cáo tin tuyển dụng",
+        description: `Người báo cáo: ${reportForm.name}, SĐT: ${reportForm.phone}, Email: ${reportForm.email}, Địa chỉ: ${reportForm.address}`,
+        createdAt: new Date().toISOString(),
+        status: 'pending'
+      };
+      
+      // Add to reports
+      existingReports.push(newReport);
+      
+      // Save to localStorage
+      localStorage.setItem("jobReports", JSON.stringify(existingReports));
+      
+      // Show success message
+      alert("Cảm ơn bạn đã báo cáo! Quản trị viên sẽ xem xét và xử lý sớm nhất có thể.");
+      
+      // Close modal
+      handleCloseReport();
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau!");
+    }
+  };
+  
   const handleCloseReport = () => {
     setShowReport(false);
     setReportJob(null);
@@ -423,20 +494,46 @@ function JobList({
           </p>
           <Form>
             <Form.Group className="mb-2">
-              <Form.Label>Họ và tên *</Form.Label>
-              <Form.Control type="text" placeholder="Họ và tên" />
+              <Form.Label>Họ và tên <span className="text-danger">*</span></Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Họ và tên" 
+                name="name"
+                value={reportForm.name}
+                onChange={handleReportFormChange}
+                required
+              />
             </Form.Group>
             <Form.Group className="mb-2">
-              <Form.Label>Số điện thoại *</Form.Label>
-              <Form.Control type="text" placeholder="0123xxxxxxx" />
+              <Form.Label>Số điện thoại</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="0123xxxxxxx" 
+                name="phone"
+                value={reportForm.phone}
+                onChange={handleReportFormChange}
+              />
             </Form.Group>
             <Form.Group className="mb-2">
-              <Form.Label>Địa chỉ *</Form.Label>
-              <Form.Control type="text" placeholder="Địa chỉ" />
+              <Form.Label>Địa chỉ</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Địa chỉ" 
+                name="address"
+                value={reportForm.address}
+                onChange={handleReportFormChange}
+              />
             </Form.Group>
             <Form.Group className="mb-2">
-              <Form.Label>Địa chỉ email *</Form.Label>
-              <Form.Control type="email" placeholder="Email" />
+              <Form.Label>Địa chỉ email <span className="text-danger">*</span></Form.Label>
+              <Form.Control 
+                type="email" 
+                placeholder="Email" 
+                name="email"
+                value={reportForm.email}
+                onChange={handleReportFormChange}
+                required
+              />
             </Form.Group>
             <Form.Group className="mb-2">
               <Form.Label>Nội dung</Form.Label>
@@ -444,6 +541,9 @@ function JobList({
                 as="textarea"
                 rows={3}
                 placeholder="Cung cấp thêm chi tiết..."
+                name="content"
+                value={reportForm.content}
+                onChange={handleReportFormChange}
               />
             </Form.Group>
           </Form>
@@ -452,7 +552,9 @@ function JobList({
           <Button variant="secondary" onClick={handleCloseReport}>
             Đóng
           </Button>
-          <Button variant="primary">Gửi</Button>
+          <Button variant="primary" onClick={handleSubmitReport}>
+            Gửi
+          </Button>
         </Modal.Footer>
       </Modal>
 

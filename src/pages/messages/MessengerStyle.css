@@ -504,78 +504,37 @@
 
 .message-attachment {
   margin-bottom: 4px;
-}
-
-.attachment-image {
-  max-width: 200px;
-  max-height: 200px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.attachment-file {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: inherit;
-  text-decoration: none;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 6px 10px;
-  border-radius: 8px;
-  margin-bottom: 4px;
-}
-
-.message.outgoing .attachment-file {
-  color: white;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Improved attachment styles */
-.attachment-preview {
-  display: flex;
-  align-items: center;
-  background: #f0f2f5;
-  padding: 6px 10px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  max-width: 100%;
-}
-
-.attachment-preview span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 5px;
-}
-
-.attachment-preview .file-size {
-  color: #65676b;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.attachment-preview .file-size.large {
-  color: #e74c3c;
-  font-weight: bold;
-}
-
-.attachment-preview .file-size.medium {
-  color: #e67e22;
-}
-
-.remove-attachment-btn {
-  background: none;
   border: none;
-  color: #65676b;
-  margin-left: auto;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0 5px;
 }
 
-.message-attachment {
-  margin-bottom: 6px;
+.message.incoming .attachment-image {
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  max-width: 100%;
+  max-height: 300px;
+  border: none;
+  box-shadow: none; /* Remove shadow that might create visual border */
+}
+
+.message.outgoing .attachment-image {
+  border-radius: 16px;
+  border-bottom-right-radius: 4px;
+  max-width: 100%;
+  max-height: 300px;
+  border: none;
+  box-shadow: none; /* Remove shadow that might create visual border */
+}
+
+.message.incoming .message-attachment {
+  background-color: #f0f2f5;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+}
+
+.message.outgoing .message-attachment {
+  background-color: #0084ff;
+  border-radius: 16px;
+  border-bottom-right-radius: 4px;
 }
 
 .attachment-image {

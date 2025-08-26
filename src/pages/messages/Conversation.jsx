@@ -22,6 +22,7 @@ import {
   FaFileImage,
   FaFilePdf
 } from 'react-icons/fa';
+import { currentUsers } from "../../services/authService";
 
 // Hàm tiện ích để đọc/ghi localStorage
 const getFromStorage = (key, defaultValue = []) => {
@@ -67,6 +68,7 @@ const Conversation = () => {
   const [isBlocked, setIsBlocked] = useState(false);
   const [attachment, setAttachment] = useState(null);
   const fileInputRef = useRef(null);
+  const [recipientDeleted, setRecipientDeleted] = useState(false);
   
   const messageContainerRef = useRef(null);
   
@@ -456,6 +458,10 @@ const Conversation = () => {
       const otherParticipantId = currentConversation.participants.find(id => id !== user.id);
       
       if (otherParticipantId) {
+        // Check if the user still exists in the system
+        const userStillExists = currentUsers.some(u => u.id === otherParticipantId);
+        setRecipientDeleted(!userStillExists);
+        
         const users = getFromStorage('users');
         const employerProfiles = getFromStorage('employerProfiles', {});
         
@@ -478,13 +484,15 @@ const Conversation = () => {
             active: true
           });
         } else {
+          // User not found in any data source - likely deleted
           setOtherUser({
             id: otherParticipantId,
-            name: "Người dùng không xác định",
+            name: "Người dùng không xác định (đã xóa)",
             avatar: null,
             role: "unknown",
             active: false
           });
+          setRecipientDeleted(true);
         }
       }
       
@@ -633,13 +641,19 @@ const Conversation = () => {
     e.preventDefault();
     
     const messageText = newMessage.trim();
-    if ((!messageText && !attachment) || !conversation) return;
+    if ((!messageText && !attachment) || !conversation || recipientDeleted) return;
     
     // Check if either user has blocked the other
     if (isBlocked || blockedByOther) {
       alert(isBlocked 
         ? "Bạn đã chặn người dùng này. Vui lòng bỏ chặn để tiếp tục nhắn tin."
         : "Bạn không thể gửi tin nhắn cho người dùng này.");
+      return;
+    }
+    
+    // Don't send if recipient is deleted
+    if (recipientDeleted) {
+      alert("Không thể gửi tin nhắn cho người dùng đã bị xóa khỏi hệ thống.");
       return;
     }
     
@@ -935,11 +949,20 @@ const Conversation = () => {
   };
 
   const handleReportConversation = () => {
-    const reason = prompt(`Vui lòng nhập lý do báo cáo ${otherUser?.name || 'người dùng này'}:`);
-    if (reason) {
-      // Implement reporting functionality here
-      alert('Đã gửi báo cáo tới admin');
-    }
+    alert('Chức năng báo cáo đã bị vô hiệu hóa.');
+  };
+
+  // Make sure otherParticipantInfo is defined properly
+  const getOtherParticipantInfo = () => {
+    // Return basic info if otherUser isn't available
+    if (!otherUser) return { username: "Không xác định" };
+    
+    return {
+      id: otherUser.id,
+      name: otherUser.name,
+      username: otherUser.username || "Không xác định",
+      role: otherUser.role || "unknown"
+    };
   };
 
   // Cập nhật hàm handleDeleteConversation để chỉ xóa một bên
@@ -1176,13 +1199,6 @@ const Conversation = () => {
                 </button>
                 <button 
                   className="header-btn" 
-                  title="Báo cáo với admin" 
-                  onClick={handleReportConversation}
-                >
-                  <FaFlag />
-                </button>
-                <button 
-                  className="header-btn" 
                   title="Xóa cuộc trò chuyện" 
                   onClick={handleDeleteConversation}
                 >
@@ -1193,6 +1209,14 @@ const Conversation = () => {
             
             {/* Container hiển thị tin nhắn */}
             <div className="message-container" ref={messageContainerRef}>
+              {recipientDeleted && (
+                <div className="deleted-user-warning">
+                  <div className="alert alert-warning text-center">
+                    Tài khoản này đã bị xóa khỏi hệ thống.<br/>
+                    Bạn không thể tiếp tục nhắn tin.
+                  </div>
+                </div>
+              )}
               {conversation?.messages && conversation.messages.length > 0 ? (
                 conversation.messages.map((message, index) => renderMessage(message, index))
               ) : (
@@ -1271,15 +1295,16 @@ const Conversation = () => {
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Aa"
+                      placeholder={recipientDeleted ? "Không thể gửi tin nhắn" : "Aa"}
                       className="message-input"
+                      disabled={recipientDeleted}
                     />
                   </div>
                   
                   <button 
                     type="submit" 
                     className="send-button"
-                    disabled={!newMessage.trim() && !attachment}
+                    disabled={!newMessage.trim() && !attachment || recipientDeleted}
                   >
                     <FaPaperPlane />
                   </button>

@@ -291,11 +291,6 @@ export default function EmployerDashboard() {
 
   return (
     <div>
-      {/* Header */}
-      <header className="header">
-        
-      </header>
-
       {/* Dashboard Content */}
       <div className="dashboard-container">
         <div className="role-info">
@@ -337,8 +332,6 @@ export default function EmployerDashboard() {
             <h3>Thông tin tài khoản</h3>
             <ul className="action-links">
               <li><Link to="/profile">Cập nhật hồ sơ công ty</Link></li>
-              <li><a href="#">Nâng cấp gói dịch vụ</a></li>
-              <li><a href="#">Cài đặt tài khoản</a></li>
             </ul>
           </div>
         </div>

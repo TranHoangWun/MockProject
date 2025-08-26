@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './MessengerStyle.css';
 import { FaSearch, FaEdit, FaEllipsisH, FaInbox, FaTrash } from 'react-icons/fa';
+import { currentUsers } from "../../services/authService";
 
 // Hàm tiện ích để đọc/ghi localStorage
 const getFromStorage = (key, defaultValue = []) => {
@@ -150,8 +151,14 @@ const MessageCenter = () => {
         // Tìm ID người tham gia khác
         const otherParticipantId = conv.participants.find(id => id !== user.id);
         
+        // Check if this user still exists in the system
+        const userStillExists = currentUsers.some(u => u.id === otherParticipantId);
+        
         // Tìm thông tin người tham gia khác
-        let otherParticipantInfo = { name: "Người dùng không xác định" };
+        let otherParticipantInfo = { 
+          name: userStillExists ? "Người dùng không xác định" : "Người dùng không xác định (đã xóa)",
+          deleted: !userStillExists
+        };
         
         // Tìm trong danh sách người dùng
         const otherUser = users.find(u => u && u.id === otherParticipantId);
@@ -198,7 +205,10 @@ const MessageCenter = () => {
         return {
           ...conv,
           messages: messages,
-          otherParticipant: otherParticipantInfo,
+          otherParticipant: {
+            ...otherParticipantInfo,
+            deleted: !userStillExists
+          },
           lastMessagePreview: lastMessage?.text || "Không có tin nhắn",
           lastMessageTime: formattedTime,
           unreadCount
@@ -381,7 +391,12 @@ const MessageCenter = () => {
                       
                       <div className="conversation-details">
                         <div className="conversation-header">
-                          <h5 className="conversation-name">{conv.otherParticipant.name}</h5>
+                          <h5 className="conversation-name">
+                            {conv.otherParticipant.name}
+                            {conv.otherParticipant.deleted && 
+                              <span className="deleted-badge"> (đã xóa)</span>
+                            }
+                          </h5>
                           <span className="conversation-time">{conv.lastMessageTime}</span>
                         </div>
                         

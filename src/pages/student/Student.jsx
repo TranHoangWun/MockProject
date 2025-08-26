@@ -58,13 +58,33 @@ function StudentDashboard() {
       // Lấy danh sách công việc từ nhà tuyển dụng
       const allEmployerJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
       
-      // Chỉ lấy những công việc đang đăng
-      const activeJobs = allEmployerJobs.filter(job => job.status === 'Đang đăng');
+      // Kiểm tra dữ liệu
+      console.log("Loaded employer jobs:", allEmployerJobs.length, "jobs");
+
+      // Lấy danh sách các tài khoản nhà tuyển dụng hiện tại
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const activeEmployerIds = users
+        .filter(u => u.role === 'employer')
+        .map(u => u.id.toString());
+
+      console.log("Active employer IDs:", activeEmployerIds);
+      
+      // Chỉ lấy những công việc đang đăng và từ các tài khoản nhà tuyển dụng còn hoạt động
+      const activeJobs = allEmployerJobs.filter(job => {
+        // Ensure employerId is converted to string for comparison
+        const jobEmployerId = job.employerId?.toString();
+        const isActive = job.status === 'Đang đăng';
+        const hasValidEmployer = jobEmployerId && activeEmployerIds.includes(jobEmployerId);
+        
+        return isActive && hasValidEmployer;
+      });
+      
+      console.log("Active jobs after filtering:", activeJobs.length, "jobs");
       
       // Chuyển đổi định dạng để phù hợp với cấu trúc dữ liệu công việc hiện có
       const formattedJobs = activeJobs.map(job => ({
         id: job.id,
-        title: job.jobTitle,
+        title: job.jobTitle || job.title, // Accept both field names
         company: job.companyName || "Nhà tuyển dụng",
         type: job.employmentType || "Toàn thời gian",
         location: job.location || job.district || "Huế",
@@ -79,11 +99,51 @@ function StudentDashboard() {
         contactPhone: job.contactPhone
       }));
       
+      console.log("Formatted jobs for display:", formattedJobs.length, "jobs");
+      
       setEmployerJobs(formattedJobs);
     } catch (error) {
       console.error("Lỗi khi tải công việc từ nhà tuyển dụng:", error);
     }
   }, [changeToken]);
+
+  // Add a useEffect to listen for user data changes and refresh jobs
+  useEffect(() => {
+    // Listen for data changes from any component
+    const handleDataChange = () => {
+      console.log("Data change detected, refreshing jobs");
+      setChangeToken(prev => prev + 1);
+    };
+
+    // Listen for storage changes (in case another tab changes user data)
+    const handleStorageChange = (e) => {
+      if (e.key === 'users' || e.key === 'employerJobs' || e.key === 'jobsLastUpdated') {
+        console.log("Storage change detected, refreshing jobs");
+        setChangeToken(prev => prev + 1);
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('dataChanged', handleDataChange);
+    window.addEventListener('storage', handleStorageChange);
+
+    // Run cleanup once on mount
+    const cleanupOnMount = async () => {
+      const { cleanupOrphanedJobs } = await import('../../utils/storageCleanup');
+      const result = cleanupOrphanedJobs();
+      if (result.removed > 0) {
+        console.log(`Cleanup removed ${result.removed} jobs, refreshing...`);
+        setChangeToken(prev => prev + 1);
+      }
+    };
+    
+    cleanupOnMount();
+
+    return () => {
+      window.removeEventListener('dataChanged', handleDataChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   // Kết hợp dữ liệu công việc từ cả hai nguồn
   const allJobs = useMemo(() => {
@@ -196,37 +256,31 @@ function StudentDashboard() {
   }, [activeTab, JSON.stringify(filters), keyword]);
 
   return (
-    <>
+    <div className="student-dashboard">
       <Banner keyword={keyword} setKeyword={setKeyword} />
       <div className="container my-4">
+        {/* Make sure these filter tabs are visible */}
+        <div className="job-filter-tabs mb-3">
+          <button 
+            className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('all')}
+          >
+            Tất cả
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('saved')}
+          >
+            Đã lưu
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'applied' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('applied')}
+          >
+            Đã ứng tuyển
+          </button>
+        </div>
 
-        {/* Tabs: Tất cả / Đã lưu / Đã ứng tuyển */}
-        <ul className="nav nav-tabs mb-3">
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "all" ? "active" : ""}`}
-              onClick={() => setActiveTab("all")}
-            >
-              Tất cả
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "saved" ? "active" : ""}`}
-              onClick={() => setActiveTab("saved")}
-            >
-              Đã lưu
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "applied" ? "active" : ""}`}
-              onClick={() => setActiveTab("applied")}
-            >
-              Đã ứng tuyển
-            </button>
-          </li>
-        </ul>
         <SearchBar keyword={keyword} setKeyword={setKeyword} onSearch={handleSearch} />
         {currentJobs.length > 0 ? (
           <>
@@ -255,7 +309,7 @@ function StudentDashboard() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

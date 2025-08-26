@@ -4,7 +4,7 @@ import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
 import StudentDashboard from "./pages/student/Student.jsx";
 import EmployerDashboard from "./pages/employer/Employer.jsx";
-import EmployerPostJob from "./pages/employer/EmployerPostJob.jsx"; // Import component đăng tin mới
+import EmployerPostJob from "./pages/employer/EmployerPostJob.jsx";
 import AdminDashboard from "./pages/admin/Admin.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import Profile from "./components/profile/Profile.jsx";
@@ -13,17 +13,23 @@ import Footer from "./components/layout/footer/Footer.jsx";
 import ProtectedRoute from "./components/layout/ProtectRoute.jsx";
 import IntroPage from "./pages/intro/Intro.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Posts from "./components/Posts";
-import PostDetail from "pages/student/postdetail/PostDetail.jsx";
+// Fix the import path to use relative path
+import Posts from "./components/Posts.jsx";
+// Fix the import path to use relative path
+import PostDetail from "./pages/student/postdetail/PostDetail.jsx";
 import About from "./pages/about/About.jsx";
-import MessageCenter from "./pages/messages/MessageCenter";
-import Conversation from "./pages/messages/Conversation";
+// Fix the import paths for message components
+import MessageCenter from "./pages/messages/MessageCenter.jsx";
+import Conversation from "./pages/messages/Conversation.jsx";
+import initializeStorageCleanup from './utils/storageCleanup';
 
 // Component chứa logic render chính
 function AppContent() {
   const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/intro";
   const { user } = useAuth();
+
+  console.log("AppContent rendering, user:", user);
 
   return (
     <>
@@ -62,6 +68,21 @@ function AppContent() {
 
 // Component chính của ứng dụng
 function App() {
+  // Run cleanup on app initialization and whenever component re-renders
+  React.useEffect(() => {
+    console.log("Running storage cleanup on refresh/initialization");
+    const results = initializeStorageCleanup();
+    console.log("Cleanup results:", results);
+    
+    // Set up a refresh check interval
+    const cleanupInterval = setInterval(() => {
+      console.log("Running scheduled cleanup check");
+      initializeStorageCleanup();
+    }, 60000); // Run every minute
+    
+    return () => clearInterval(cleanupInterval);
+  }, []);
+
   return (
     <AuthProvider>
       <Router>

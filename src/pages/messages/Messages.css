@@ -533,6 +533,12 @@
   background-color: #e4e6eb;
 }
 
+.message-input:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
 .send-button {
   background-color: transparent;
   color: #0084ff;
@@ -552,7 +558,7 @@
 }
 
 .send-button:disabled {
-  color: #bcc0c4;
+  color: #ccc;
   cursor: not-allowed;
   transform: none;
 }
@@ -567,6 +573,31 @@
   color: #65676b;
   text-align: center;
   padding: 20px;
+}
+
+/* Add styling for deleted user indicators */
+.deleted-badge {
+  font-size: 11px;
+  color: #f44336;
+  font-weight: normal;
+  font-style: italic;
+}
+
+/* Add styling for deleted user warning */
+.deleted-user-warning {
+  padding: 20px;
+  margin: auto;
+  text-align: center;
+  width: 100%;
+}
+
+.deleted-user-warning .alert {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 /* Responsive layout */
