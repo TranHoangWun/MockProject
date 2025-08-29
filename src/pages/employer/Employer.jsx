@@ -114,6 +114,46 @@ export default function EmployerDashboard() {
     }
   };
 
+  // Enhance permanent delete function
+  const handlePermanentDeleteJob = (jobId) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn tin tuyển dụng này? Hành động này không thể khôi phục.')) {
+      try {
+        // Remove from deletedJobs
+        const allDeletedJobs = JSON.parse(localStorage.getItem('deletedJobs') || '[]');
+        const updatedDeletedJobs = allDeletedJobs.filter(job => job.id !== jobId);
+        localStorage.setItem('deletedJobs', JSON.stringify(updatedDeletedJobs));
+        
+        // Ensure job doesn't exist in employerJobs (just in case)
+        const allJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
+        const updatedJobs = allJobs.filter(job => job.id !== jobId);
+        localStorage.setItem('employerJobs', JSON.stringify(updatedJobs));
+        
+        // Also mark as permanently deleted to ensure it doesn't reappear
+        localStorage.setItem(`job_${jobId}_permanently_deleted`, 'true');
+        
+        // Also clean up any saved jobs or applications for this job
+        const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]');
+        const updatedSavedJobs = savedJobs.filter(item => item.jobId !== jobId);
+        localStorage.setItem('savedJobs', JSON.stringify(updatedSavedJobs));
+        
+        const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]');
+        const updatedAppliedJobs = appliedJobs.filter(item => item.jobId !== jobId);
+        localStorage.setItem('appliedJobs', JSON.stringify(updatedAppliedJobs));
+        
+        // Dispatch event to notify other components
+        window.dispatchEvent(new Event('dataChanged'));
+        
+        // Update component state
+        loadJobListings();
+        
+        alert('Đã xóa vĩnh viễn tin tuyển dụng thành công!');
+      } catch (error) {
+        console.error("Error permanently deleting job:", error);
+        alert('Có lỗi xảy ra khi xóa vĩnh viễn tin tuyển dụng!');
+      }
+    }
+  };
+
   // Hàm xử lý khi nhấp vào xem ứng viên
   const handleViewApplicants = (jobId) => {
     setSelectedJobId(jobId);
@@ -319,12 +359,8 @@ export default function EmployerDashboard() {
               <li>
                 <Link to="/employer/post-job">Đăng tin tuyển dụng mới</Link>
               </li>
-              <li>
-                <a href="#">Quản lý tin tuyển dụng đã đăng</a>
-              </li>
-              <li>
-                <a href="#">Xem danh sách ứng viên</a>
-              </li>
+              
+              
             </ul>
           </div>
           
@@ -401,6 +437,7 @@ export default function EmployerDashboard() {
                 <th>Tiêu đề</th>
                 <th>Ngày đăng</th>
                 <th>Lý do</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -410,11 +447,29 @@ export default function EmployerDashboard() {
                     <td>{job.jobTitle || "Không có tiêu đề"}</td>
                     <td>{job.date || "N/A"}</td>
                     <td><span className="reason">{job.reason || "Không có lý do"}</span></td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          onClick={() => handleViewJobDetails(job)}
+                          className="view-details-btn"
+                          title="Xem chi tiết"
+                        >
+                          Chi tiết
+                        </button>
+                        <button
+                          onClick={() => handlePermanentDeleteJob(job.id)}
+                          className="delete-btn"
+                          title="Xóa vĩnh viễn"
+                        >
+                          Xóa vĩnh viễn
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" className="text-center">Không có tin tuyển dụng nào đã xóa</td>
+                  <td colSpan="4" className="text-center">Không có tin tuyển dụng nào đã xóa</td>
                 </tr>
               )}
             </tbody>
@@ -452,10 +507,15 @@ export default function EmployerDashboard() {
                         <td>{applicant.phone}</td>
                         <td>
                           {applicant.cv ? (
-                            <a href="#" onClick={(e) => {
-                              e.preventDefault();
-                              handleViewCV(applicant.cv);
-                            }}>Xem CV</a>
+                            <button 
+                              className="btn btn-primary btn-sm"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleViewCV(applicant.cv);
+                              }}
+                            >
+                              Xem CV
+                            </button>
                           ) : (
                             "Không có CV"
                           )}
@@ -519,12 +579,12 @@ export default function EmployerDashboard() {
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: "rgba(0,0,0,0.9)",
-              maxWidth: "98%", // Tăng từ 95% lên 98%
-              maxHeight: "98%", // Tăng từ 95% lên 98%
+              maxWidth: "98%",
+              maxHeight: "98%",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              padding: "10px", // Giảm padding từ 20px xuống 10px để tăng không gian hiển thị
+              padding: "10px",
               borderRadius: "8px"
             }}
           >
@@ -555,7 +615,7 @@ export default function EmployerDashboard() {
               style={{
                 overflow: "auto",
                 width: "100%",
-                height: "calc(100vh - 80px)", // Tăng từ 120px lên 80px để có nhiều không gian hơn
+                height: "calc(100vh - 80px)",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
@@ -567,7 +627,7 @@ export default function EmployerDashboard() {
                 style={{
                   transform: `scale(${zoomLevel})`,
                   transformOrigin: "center",
-                  maxWidth: "98%", // Tăng từ 95% lên 98%
+                  maxWidth: "98%",
                   maxHeight: "none",
                   transition: "transform 0.2s ease",
                   backgroundColor: "#fff",
@@ -578,7 +638,7 @@ export default function EmployerDashboard() {
             
             <button 
               className="btn btn-light position-absolute" 
-              style={{top: "10px", right: "10px"}} // Giảm từ 20px xuống 10px
+              style={{top: "10px", right: "10px"}}
               onClick={() => setShowCV(false)}
             >
               Đóng

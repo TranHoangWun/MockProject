@@ -9,6 +9,7 @@ import appliedJobsSeed from "data/appliedJobs";
 import SearchBar from "components/searchbar/SearchBar.jsx";
 import { useAuth } from "context/AuthContext.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { filterInvalidStaticJobs, cleanupDeletedJobApplications } from "../../utils/jobUtils";
 
 // Utils localStorage
 const LS_SAVED_KEY = "savedJobs";
@@ -55,31 +56,43 @@ function StudentDashboard() {
   // Tải dữ liệu công việc từ localStorage khi component mounts hoặc changeToken thay đổi
   useEffect(() => {
     try {
-      // Lấy danh sách công việc từ nhà tuyển dụng
       const allEmployerJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
+      // Get IDs of both deleted jobs and permanently deleted jobs
+      const deletedJobIds = JSON.parse(localStorage.getItem('deletedJobs') || '[]')
+        .map(job => job.id);
       
-      // Kiểm tra dữ liệu
-      console.log("Loaded employer jobs:", allEmployerJobs.length, "jobs");
-
-      // Lấy danh sách các tài khoản nhà tuyển dụng hiện tại
+      // Also check for individually marked permanently deleted jobs
+      const permanentlyDeletedJobIds = [];
+      for(let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if(key && key.startsWith('job_') && key.endsWith('_permanently_deleted')) {
+          const jobId = parseInt(key.replace('job_', '').replace('_permanently_deleted', ''));
+          if(!isNaN(jobId)) {
+            permanentlyDeletedJobIds.push(jobId);
+          }
+        }
+      }
+      
+      // Combine all deleted job IDs
+      const allDeletedJobIds = [...new Set([...deletedJobIds, ...permanentlyDeletedJobIds])];
+      
+      // Get list of active employers
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       const activeEmployerIds = users
-        .filter(u => u.role === 'employer')
+        .filter(u => u.role === 'employer' && !u.isLocked)
         .map(u => u.id.toString());
-
-      console.log("Active employer IDs:", activeEmployerIds);
       
-      // Chỉ lấy những công việc đang đăng và từ các tài khoản nhà tuyển dụng còn hoạt động
+      // Filter active jobs more strictly
       const activeJobs = allEmployerJobs.filter(job => {
-        // Ensure employerId is converted to string for comparison
         const jobEmployerId = job.employerId?.toString();
         const isActive = job.status === 'Đang đăng';
         const hasValidEmployer = jobEmployerId && activeEmployerIds.includes(jobEmployerId);
+        const isNotDeleted = !allDeletedJobIds.includes(job.id);
         
-        return isActive && hasValidEmployer;
+        return isActive && hasValidEmployer && isNotDeleted;
       });
       
-      console.log("Active jobs after filtering:", activeJobs.length, "jobs");
+      console.log("Active jobs after strict filtering:", activeJobs.length, "jobs");
       
       // Chuyển đổi định dạng để phù hợp với cấu trúc dữ liệu công việc hiện có
       const formattedJobs = activeJobs.map(job => ({
@@ -147,17 +160,31 @@ function StudentDashboard() {
 
   // Kết hợp dữ liệu công việc từ cả hai nguồn
   const allJobs = useMemo(() => {
+    // Filter out static jobs that don't have valid employers
+    const validStaticJobs = filterInvalidStaticJobs(jobs);
+    console.log(`Filtered static jobs: ${validStaticJobs.length}/${jobs.length}`);
+    
     // Sử dụng Map để xử lý trùng lặp (nếu có) dựa trên ID
     const jobMap = new Map();
     
-    // Thêm jobs từ dữ liệu tĩnh
-    jobs.forEach(job => jobMap.set(job.id, job));
+    // Thêm jobs từ dữ liệu tĩnh (đã lọc)
+    validStaticJobs.forEach(job => jobMap.set(job.id, job));
     
     // Thêm hoặc ghi đè với jobs từ nhà tuyển dụng
     employerJobs.forEach(job => jobMap.set(job.id, job));
     
     return Array.from(jobMap.values());
   }, [employerJobs]);
+
+  // Add a useEffect to perform complete cleanup on mount
+  useEffect(() => {
+    const { completeJobDataCleanup } = require("../../utils/jobUtils");
+    const result = completeJobDataCleanup();
+    if (result.removedJobs > 0) {
+      console.log(`Cleaned up ${result.removedJobs} orphaned jobs`);
+      setChangeToken(prev => prev + 1);
+    }
+  }, []);
 
   // Reset filter khi là student (giống code gốc)
   React.useEffect(() => {

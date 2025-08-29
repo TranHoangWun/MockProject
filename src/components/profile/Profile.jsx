@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { updateUser } from "../../services/authService";
 
@@ -34,6 +34,17 @@ export default function Profile() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  // Move useEffect to the top level, right after state declarations
+  useEffect(() => {
+    if (user && user.profile) {
+      const base = user.profile;
+      setForm({
+        ...base,
+        socialLinks: normalizeLinks(base.socialLinks),
+      });
+    }
+  }, [user]);
 
   if (!user) return <p>Vui lòng đăng nhập để xem thông tin cá nhân.</p>;
 
@@ -97,29 +108,46 @@ export default function Profile() {
       ...user,
       profile: {
         ...form,
-        // đảm bảo socialLinks đã chuẩn hóa
         socialLinks: normalizeLinks(form.socialLinks),
       },
       password: showChangePass && newPassword ? newPassword : user.password,
     };
 
-    updateUser(updatedUser); // Lưu localStorage
-    setUser(updatedUser); // Update UI ngay
+    // Lưu dữ liệu và kiểm tra kết quả
+    const result = updateUser(updatedUser);
     
-    // Nếu là nhà tuyển dụng, cập nhật trong employerProfiles và tin tuyển dụng
-    if (user.role === "employer") {
-      updateEmployerProfile(updatedUser);
-    }
+    if (result.success) {
+      // Cập nhật state UI ngay lập tức
+      setUser(updatedUser);
+      
+      // Nếu là nhà tuyển dụng, cập nhật thông tin liên quan
+      if (user.role === "employer") {
+        updateEmployerProfile(updatedUser);
+      }
 
-    // reset
-    setEditing(false);
-    setShowChangePass(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setError("");
+      // Reset form states
+      setEditing(false);
+      setShowChangePass(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setError("");
+      
+      // Hiển thị thông báo thành công
+      setUpdateMessage("Đã lưu thông tin thành công!");
+      setTimeout(() => setUpdateMessage(""), 3000);
+      
+      // Force page reload để đảm bảo dữ liệu được load lại từ localStorage
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } else {
+      setError(result.message || "Có lỗi xảy ra khi lưu thông tin!");
+      setUpdateMessage("");
+    }
   };
-  
+
   // Hàm mới để cập nhật hồ sơ nhà tuyển dụng
   const updateEmployerProfile = (updatedUser) => {
     try {

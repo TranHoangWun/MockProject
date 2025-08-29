@@ -252,3 +252,91 @@
   flex-shrink: 0;
   margin-bottom: 0.25rem;
 }
+
+/* Enhanced CV preview styles */
+.cv-preview {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cv-image-container {
+  text-align: center;
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+.cv-preview-image {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  transition: transform 0.2s ease;
+}
+
+.cv-preview-image:hover {
+  transform: scale(1.02);
+}
+
+/* Make modal larger for CV display */
+.modal-lg {
+  max-width: 800px;
+}
+
+/* Ensure modal content has enough space */
+.modal-body {
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Hide CV view button */
+.btn-view-cv,
+.btn:contains("Xem CV") {
+  display: none !important;
+}
+
+/* Direct CV display in application modal */
+.cv-direct-display {
+  margin: 1rem 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #eef0f2;
+}
+
+.cv-direct-display .cv-image {
+  display: block;
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.cv-direct-display .cv-image:hover {
+  transform: scale(1.02);
+}
+
+/* Enhanced modal for direct CV viewing */
+.modal-body .cv-section {
+  border: none;
+  padding: 0;
+}
+
+.modal-body .cv-section h5 {
+  margin-bottom: 1rem;
+  color: #344054;
+  font-weight: 600;
+}
+
+/* Remove old CV preview styles that used separate modal */
+.cv-preview,
+.cv-image-container,
+.cv-preview-image {
+  /* These are now handled by cv-direct-display */
+}

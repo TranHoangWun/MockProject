@@ -61,6 +61,24 @@ export function cleanupOrphanedJobs() {
 }
 
 /**
+ * Check if a job has been permanently deleted
+ * @param {number} jobId - The job ID to check
+ * @returns {boolean} - True if job has been deleted, false otherwise
+ */
+export function isJobDeleted(jobId) {
+  try {
+    // Get deleted jobs from localStorage
+    const deletedJobs = JSON.parse(localStorage.getItem('deletedJobs') || '[]');
+    
+    // Check if job ID exists in deleted jobs
+    return deletedJobs.some(job => job.id === jobId);
+  } catch (error) {
+    console.error("Error checking if job is deleted:", error);
+    return false;
+  }
+}
+
+/**
  * Clean up user posts from deleted accounts
  */
 export function cleanupUserPosts() {

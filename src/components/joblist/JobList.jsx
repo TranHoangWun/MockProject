@@ -7,6 +7,7 @@ import "./jobList.css";
 
 import { AuthContext } from "../../context/AuthContext";
 import usersData from "../../data/users";
+import { cancelJobApplication, cleanupDeletedJobApplications } from "../../utils/jobUtils";
 
 const LS_SAVED_KEY = "savedJobs";
 const LS_APPLIED_KEY = "appliedJobs";
@@ -386,12 +387,21 @@ function JobList({
   // Cancel Apply
   const onCancelApply = (job) => {
     if (window.confirm("Bạn có chắc muốn hủy ứng tuyển công việc này?")) {
-      let ls = readLS(LS_APPLIED_KEY);
-      ls = ls.filter(
-        (x) => !(x.userId === currentUserId && x.jobId === job.id)
-      );
-      writeLS(LS_APPLIED_KEY, ls);
-      onDataChange?.();
+      try {
+        // Use the new utility function to handle cancelation
+        const result = cancelJobApplication(currentUserId, job.id);
+        
+        if (result.success) {
+          // Trigger data change to update UI
+          onDataChange?.();
+          alert("Đã hủy ứng tuyển thành công!");
+        } else {
+          alert(result.message || "Không thể hủy ứng tuyển. Vui lòng thử lại sau.");
+        }
+      } catch (error) {
+        console.error("Error canceling application:", error);
+        alert("Có lỗi xảy ra khi hủy ứng tuyển!");
+      }
     }
   };
 
@@ -457,6 +467,30 @@ function JobList({
       alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
     }
   };
+
+  React.useEffect(() => {
+    // Clean up applications for deleted jobs
+    cleanupDeletedJobApplications();
+  }, []);
+
+  // Add cleanup effect when component mounts
+  React.useEffect(() => {
+    const cleanup = async () => {
+      try {
+        // Clean up applications for deleted jobs
+        const { completeJobDataCleanup } = await import("../../utils/jobUtils");
+        const result = completeJobDataCleanup();
+        if (result.removedJobs > 0) {
+          console.log(`Cleaned up ${result.removedJobs} orphaned jobs`);
+          onDataChange?.();
+        }
+      } catch (error) {
+        console.error("Error during job cleanup:", error);
+      }
+    };
+    
+    cleanup();
+  }, []);
 
   return (
     <>
@@ -559,41 +593,39 @@ function JobList({
       </Modal>
 
       {/* Modal Ứng tuyển */}
-      <Modal show={showApply} onHide={handleCloseApply} centered>
+      <Modal show={showApply} onHide={handleCloseApply} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>Ứng tuyển công việc</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>Bạn đang ứng tuyển vào công việc: <b>{applyJob?.title}</b> - {applyJob?.company}</p>
-          <hr />
-          <h6>Thông tin ứng viên</h6>
-          <p><b>Họ tên:</b> {userProfile?.fullName || "Chưa cập nhật"}</p>
-          <p><b>Email:</b> {userProfile?.email || "Chưa cập nhật"}</p>
-          <p><b>Số điện thoại:</b> {userProfile?.phone || "Chưa cập nhật"}</p>
-          <p><b>Trường học:</b> {userProfile?.school || "Chưa cập nhật"}</p>
-          <p><b>Địa chỉ:</b> {userProfile?.address || "Chưa cập nhật"}</p>
           
-          {/* Hiển thị CV - Đã chỉnh sửa phần này */}
-          <div className="cv-preview">
-            <p><b>CV:</b></p>
+          {/* Hiển thị CV trước thông tin cá nhân để nó nổi bật hơn */}
+          <div className="cv-preview mt-3 mb-4">
+            <h5 className="mb-3">Curriculum Vitae (CV)</h5>
             {userProfile?.cv ? (
               <>
                 {userProfile.cv.startsWith('data:image') || 
-                 userProfile.cv.match(/\.(jpeg|jpg|gif|png)$/) ? (
+                  userProfile.cv.match(/\.(jpeg|jpg|gif|png)$/) ? (
                   <div className="cv-image-container position-relative">
                     <img 
                       src={userProfile.cv} 
                       alt="CV Preview" 
-                      className={`img-fluid cv-preview-image ${isImageZoomed ? 'zoomed' : ''}`}
+                      className="img-fluid cv-preview-image"
                       style={{
                         cursor: 'pointer',
-                        maxHeight: isImageZoomed ? "none" : "300px",
+                        maxHeight: "500px", // Tăng kích thước hiển thị mặc định
+                        width: "100%", // Đảm bảo chiều rộng phù hợp
+                        objectFit: "contain", // Giữ tỷ lệ khung hình
                         border: "1px solid #ddd", 
                         borderRadius: "4px",
-                        transition: "transform 0.3s ease"
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
                       }}
                       onClick={toggleImageZoom}
                     />
+                    <div className="text-center mt-2">
+                      <small className="text-muted">Nhấn vào CV để phóng to</small>
+                    </div>
                     {isImageZoomed && (
                       <div 
                         className="zoomed-overlay" 
@@ -609,7 +641,7 @@ function JobList({
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
-                          padding: "10px", // Giảm padding
+                          padding: "10px",
                           flexDirection: "column"
                         }}
                       >
@@ -640,7 +672,7 @@ function JobList({
                           style={{
                             overflow: "auto",
                             width: "100%",
-                            height: "calc(100vh - 80px)", // Tăng không gian hiển thị
+                            height: "calc(100vh - 80px)",
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center"
@@ -652,8 +684,8 @@ function JobList({
                             style={{
                               transform: `scale(${zoomLevel})`,
                               transformOrigin: "center",
-                              maxWidth: "98%", // Tăng kích thước hiển thị
-                              maxHeight: "none", // Loại bỏ giới hạn chiều cao
+                              maxWidth: "98%",
+                              maxHeight: "none",
                               transition: "transform 0.2s ease"
                             }}
                           />
@@ -673,9 +705,14 @@ function JobList({
                     )}
                   </div>
                 ) : (
-                  <a href={userProfile.cv} target="_blank" rel="noreferrer" className="btn btn-outline-primary">
-                    Xem CV
-                  </a>
+                  <div className="text-center py-3">
+                    <a href={userProfile.cv} target="_blank" rel="noreferrer" className="btn btn-primary btn-lg">
+                      Xem CV
+                    </a>
+                    <div className="mt-2 text-muted">
+                      <small>CV của bạn được lưu dưới dạng liên kết ngoài</small>
+                    </div>
+                  </div>
                 )}
               </>
             ) : (
@@ -689,6 +726,15 @@ function JobList({
               </div>
             )}
           </div>
+          
+          <hr />
+          
+          <h5>Thông tin ứng viên</h5>
+          <p><b>Họ tên:</b> {userProfile?.fullName || "Chưa cập nhật"}</p>
+          <p><b>Email:</b> {userProfile?.email || "Chưa cập nhật"}</p>
+          <p><b>Số điện thoại:</b> {userProfile?.phone || "Chưa cập nhật"}</p>
+          <p><b>Trường học:</b> {userProfile?.school || "Chưa cập nhật"}</p>
+          <p><b>Địa chỉ:</b> {userProfile?.address || "Chưa cập nhật"}</p>
           
           {(!userProfile?.fullName || !userProfile?.email || !userProfile?.phone) && (
             <div className="alert alert-warning mt-3">
@@ -765,6 +811,14 @@ function JobList({
                 <hr />
                 <h5>Mô tả công việc</h5>
                 <p>{detailJob?.description}</p>
+                
+                {/* Thêm phần yêu cầu công việc */}
+                {detailJob?.requirements && (
+                  <>
+                    <h5 className="mt-3">Yêu cầu công việc</h5>
+                    <p>{detailJob?.requirements}</p>
+                  </>
+                )}
                 
                 <h5>Bản đồ</h5>
                 <iframe

@@ -41,10 +41,13 @@ const JobDetail = ({ job, onClose }) => {
           <p>{job.description}</p>
         </div>
         
-        <div className="job-requirements">
-          <h4>Yêu cầu công việc</h4>
-          <p>{job.requirements}</p>
-        </div>
+        {/* Ensure we only show requirements section if it has content */}
+        {job.requirements && (
+          <div className="job-requirements">
+            <h4>Yêu cầu công việc</h4>
+            <p>{job.requirements}</p>
+          </div>
+        )}
         
         <div className="contact-info">
           <h4>Thông tin liên hệ</h4>

@@ -75,6 +75,14 @@ export function initializeEmployerJobs() {
       const jobCount = 2 + Math.floor(Math.random() * 3);
       
       for (let i = 0; i < jobCount; i++) {
+        // Generate job ID
+        const jobId = Date.now() + i + index * 100;
+        
+        // Skip if this job was permanently deleted before
+        if (localStorage.getItem(`job_${jobId}_permanently_deleted`) === 'true') {
+          continue;
+        }
+        
         // Select random category
         const category = jobCategories[Math.floor(Math.random() * jobCategories.length)];
         
@@ -92,7 +100,7 @@ export function initializeEmployerJobs() {
         
         // Create the job object
         const job = {
-          id: Date.now() + i + index * 100,
+          id: jobId,
           jobTitle: jobTitle,
           title: jobTitle,
           employerId: employer.id,
