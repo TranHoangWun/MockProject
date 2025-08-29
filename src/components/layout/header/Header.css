@@ -84,3 +84,24 @@
   color: #FFD700 !important;
   /* vàng nổi bật */
 }
+
+/* Kiểu dáng cho nút tin nhắn và badge */
+.messages-btn {
+  position: relative;
+  padding-right: 8px;
+}
+
+.message-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff4b4b;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 16px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}

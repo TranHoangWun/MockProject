@@ -1,0 +1,553 @@
+/* Header styles */
+.header {
+  display: none;
+  background-color: #8e44ad;
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 30px;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-link {
+  color: white;
+  margin-right: 20px;
+  text-decoration: none;
+  padding: 5px 10px;
+}
+
+.nav-link.active {
+  border-bottom: 2px solid white;
+}
+
+.user-greeting {
+  margin-right: 20px;
+}
+
+.btn-logout {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 5px 15px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+/* Dashboard styles */
+.dashboard-container {
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.role-info {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Stats cards */
+.stats-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  flex: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card.green {
+  background-color: #e8f5e9;
+  border-color: #c8e6c9;
+}
+
+.stat-card.pink {
+  background-color: #fce4ec;
+  border-color: #f8bbd0;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Content layout */
+.dashboard-content {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.management-section, .account-section {
+  flex: 1;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.action-links {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.action-links li {
+  margin-bottom: 12px;
+}
+
+.action-links a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.action-links a:hover {
+  text-decoration: underline;
+}
+
+/* Job listings table */
+.job-listings-section, .deleted-jobs-section {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.job-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.job-table th, .job-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.job-table th {
+  font-weight: 600;
+  background-color: #f5f5f5;
+}
+
+.status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.status.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.view-link {
+  color: #00bcd4;
+  text-decoration: none;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.reason {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #f44336;
+  color: white;
+  font-size: 14px;
+}
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Modal Overlay (chung) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal danh sách ứng viên */
+.applicants-modal {
+  background-color: white;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal Chi tiết tin tuyển dụng */
+.job-details-modal {
+  background-color: white;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-content {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+}
+
+.modal-footer {
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-close {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Chi tiết công việc */
+.job-detail-section {
+  margin-bottom: 20px;
+}
+
+.job-detail-section h4 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 5px;
+  color: #333;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table td {
+  padding: 8px 5px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-table td:first-child {
+  width: 180px;
+  font-weight: normal;
+}
+
+.modal-content {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(90vh - 60px);
+}
+
+/* Bảng danh sách ứng viên */
+.applicants-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.applicants-table th, .applicants-table td {
+  padding: 10px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.applicants-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+/* Badge trạng thái ứng viên */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.đã.gửi,
+.status-badge.applied {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-badge.chấp.nhận,
+.status-badge.accepted {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.từ.chối,
+.status-badge.rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Nút hành động ứng viên */
+.applicant-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.accept-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.cancel-btn {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.no-applicants {
+  text-align: center;
+  color: #757575;
+  padding: 20px;
+  font-style: italic;
+}
+
+/* Styling for map in job details modal */
+.map-container {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* Styling cho modal xem CV */
+.cv-modal {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 85%; /* Thêm thuộc tính này để đảm bảo modal đủ rộng */
+}
+
+.cv-image-container {
+  background-color: rgba(0, 0, 0, 0.9);
+  border-radius: 4px;
+  margin-bottom: 0; /* Loại bỏ margin dưới để tận dụng không gian */
+}
+
+.cv-image-container img {
+  object-fit: contain; /* Đảm bảo hình ảnh hiển thị tốt nhất */
+  box-shadow: 0 0 20px rgba(255,255,255,0.1); /* Thêm hiệu ứng shadow nhẹ */
+}
+
+.cv-image-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.cv-image-container::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+}
+
+.cv-image-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 20px;
+}
+
+.zoom-controls {
+  z-index: 1101;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px; /* Giảm margin */
+}
+
+/* Make sure the tab buttons are properly styled and visible */
+.job-filter-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  overflow: visible;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #555;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+  opacity: 1;
+  visibility: visible;
+  display: block;
+}
+
+.tab-btn.active {
+  color: #2563eb;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #2563eb;
+}
+
+.tab-btn:hover {
+  color: #2563eb;
+}
+
+/* Fix for the job filter tabs to ensure they're always visible */
+.job-filter-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+  padding: 0;
+  width: 100%;
+}
+
+.job-filter-tabs .tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #555 !important; /* Force color to be visible */
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+  opacity: 1 !important; /* Force elements to be visible */
+  visibility: visible !important; /* Ensure visibility */
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+}
+
+.job-filter-tabs .tab-btn.active {
+  color: #2563eb !important;
+  font-weight: 600;
+  border-bottom: 3px solid #2563eb;
+}
+
+.job-filter-tabs .tab-btn:hover {
+  color: #2563eb !important;
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* Override any Bootstrap styling that might be hiding the nav tabs */
+.nav-tabs .nav-item .nav-link {
+  color: #555 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.nav-tabs .nav-item .nav-link.active {
+  color: #2563eb !important;
+  font-weight: 600;
+}

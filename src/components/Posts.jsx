@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import defaultAvatar from "../assets/images/student/student1.jpg";
 import { Link } from "react-router-dom";
 import { normalizePosts } from "../utils/normalizePosts";
+import "./Posts.css";
 
 export default function Posts() {
   const { user } = useContext(AuthContext);
@@ -18,12 +19,48 @@ export default function Posts() {
     localStorage.setItem("posts", JSON.stringify(posts));
   }, [posts]);
 
-  const [sortOption, setSortOption] = useState("newest");
+  /* --- CSS cho NÚT TĨNH (không phụ thuộc bootstrap) --- */
+  const STATIC_ACTIONS_CSS = `
+    .pa-row{ display:flex!important; flex-wrap:wrap!important; gap:8px!important; margin-top:12px!important; align-items:center; }
+    .pa-btn{
+      display:inline-flex!important; align-items:center; justify-content:center;
+      padding:6px 12px; border-radius:8px; font-size:14px; line-height:1;
+      border:1px solid transparent; text-decoration:none; cursor:pointer;
+      user-select:none; white-space:nowrap; flex:0 0 auto;
+      opacity:1!important; visibility:visible!important;
+    }
+    .pa-btn--view{ background:#eaf2ff; border-color:#eaf2ff; color:#0d6efd; }
+    .pa-btn--like{ background:#eaf7ee; border-color:#eaf7ee; color:#198754; }
+    .pa-btn--like.is-on{ background:#198754; border-color:#198754; color:#fff; }
+    .pa-btn--report{ background:#fdebed; border-color:#fdebed; color:#dc3545; }
+    .card .card-body{ overflow:visible!important; }
+  `;
 
+  /* --- CSS cho TABS TĨNH (không hiệu ứng) --- */
+  const STATIC_TABS_CSS = `
+    .ptabs{ display:flex; gap:8px; margin-bottom:12px; }
+    .ptab{
+      border:1px solid #e5e7eb; background:#fff; color:#0d6efd;
+      padding:8px 12px; border-radius:10px 10px 0 0; font-weight:600; cursor:pointer;
+    }
+    .ptab.active{
+      background:#fff; color:#0d6efd; border-bottom-color:#fff;
+      box-shadow: inset 0 -2px 0 0 #0d6efd;
+    }
+  `;
+
+  const [sortOption, setSortOption] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("all"); // all | mine | useful
+  
+  // Add new state variables for report functionality
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportData, setReportData] = useState({
+    postId: null,
+    reason: "",
+  });
 
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -34,35 +71,63 @@ export default function Posts() {
 
   const postsPerPage = 3;
 
-  // Toggle like
   const handleLike = (id) => {
     if (!user) {
       alert("Bạn cần đăng nhập để bấm Hữu ích!");
       return;
     }
-
     setPosts((prev) =>
       prev.map((p) => {
-        if (p.id === id) {
-          const likesArray = Array.isArray(p.likes) ? p.likes : [];
-          const alreadyLiked = likesArray.includes(user.id);
-          return {
-            ...p,
-            likes: alreadyLiked
-              ? likesArray.filter((uid) => uid !== user.id)
-              : [...likesArray, user.id],
-          };
-        }
-        return p;
+        if (p.id !== id) return p;
+        const likesArray = Array.isArray(p.likes) ? p.likes : [];
+        const already = likesArray.includes(user.id);
+        return {
+          ...p,
+          likes: already
+            ? likesArray.filter((uid) => uid !== user.id)
+            : [...likesArray, user.id],
+        };
       })
     );
   };
 
-  // Báo cáo bài viết
   const handleReport = (id) => {
-    alert(`Bạn đã báo cáo bài viết #${id}. Quản trị viên sẽ xem xét.`);
+    if (!user) {
+      alert("Bạn cần đăng nhập để báo cáo bài viết!");
+      return;
+    }
+    // Open report modal instead of showing alert
+    setReportData({ postId: id, reason: "" });
+    setShowReportModal(true);
   };
 
+  const handleReportSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!reportData.reason.trim()) {
+      alert("Vui lòng nhập lý do báo cáo!");
+      return;
+    }
+
+    // Get existing reports or create new array
+    const existingReports = JSON.parse(localStorage.getItem("postReports") || "[]");
+    
+    // Add new report with timestamp
+    const newReport = {
+      ...reportData,
+      userId: user.id,
+      userName: user.profile?.fullName || user.username,
+      timestamp: new Date().toISOString()
+    };
+    
+    existingReports.push(newReport);
+    
+    // Save to localStorage (in a real app, this would be sent to a server)
+    localStorage.setItem("postReports", JSON.stringify(existingReports));
+    
+    alert(`Cảm ơn bạn đã báo cáo. Quản trị viên sẽ xem xét báo cáo của bạn.`);
+    setShowReportModal(false);
+  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -70,22 +135,16 @@ export default function Posts() {
       (file) =>
         new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => resolve(reader.result); // base64
+          reader.onload = () => resolve(reader.result);
           reader.onerror = reject;
           reader.readAsDataURL(file);
         })
     );
-
     Promise.all(readers).then((base64Images) => {
-      setFormData({
-        ...formData,
-        images: [...formData.images, ...base64Images], //lưu base64 thay vì objectURL
-      });
+      setFormData((prev) => ({ ...prev, images: [...prev.images, ...base64Images] }));
     });
   };
 
-
-  // Thêm bài viết mới
   const handleSubmitPost = (e) => {
     e.preventDefault();
     if (!user) {
@@ -109,47 +168,57 @@ export default function Posts() {
       images: formData.images,
       likes: [],
       comments: [],
-      date: new Date().toISOString(), //ISO chuẩn
+      date: new Date().toISOString(),
     };
 
-    setPosts([newPost, ...posts]);
+    setPosts((prev) => [newPost, ...prev]);
     setFormData({ jobTitle: "", company: "", content: "", images: [] });
     setShowModal(false);
     setCurrentPage(1);
   };
 
-  // lọc bài viết theo tab
+  // chuyển tab (nếu chưa đăng nhập mà bấm vào "mine"/"useful" thì nhắc và ở lại tab hiện tại)
+  const switchTab = (key) => {
+    if (!user && (key === "mine" || key === "useful")) {
+      alert("Vui lòng đăng nhập để dùng mục này.");
+      return;
+    }
+    setActiveTab(key);
+    setCurrentPage(1);
+  };
+
+  // lọc theo tab
   let filteredPosts = posts;
-  if (activeTab === "mine" && user) {
-    filteredPosts = posts.filter(
-      (p) => p.author?.name === (user.profile?.fullName || user.username)
-    );
+  if (activeTab === "mine") {
+    filteredPosts = user
+      ? posts.filter((p) => p.author?.name === (user.profile?.fullName || user.username))
+      : [];
   } else if (activeTab === "useful") {
-    filteredPosts = posts.filter((p) => Array.isArray(p.likes) && p.likes.includes(user.id));
+    filteredPosts = user
+      ? posts.filter((p) => Array.isArray(p.likes) && p.likes.includes(user.id))
+      : [];
   }
 
   // search
-  filteredPosts = filteredPosts.filter(
-    (p) =>
-      p.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  filteredPosts = filteredPosts.filter((p) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      p.jobTitle.toLowerCase().includes(q) ||
+      p.company.toLowerCase().includes(q) ||
+      p.content.toLowerCase().includes(q)
+    );
+  });
 
   // sort
   const sortedPosts = [...filteredPosts].sort((a, b) => {
-    if (sortOption === "newest") {
-      return new Date(b.date) - new Date(a.date);
-    }
-    if (sortOption === "oldest") {
-      return new Date(a.date) - new Date(b.date);
-    }
+    if (sortOption === "newest") return new Date(b.date) - new Date(a.date);
+    if (sortOption === "oldest") return new Date(a.date) - new Date(b.date);
     if (sortOption === "alphabet") return a.jobTitle.localeCompare(b.jobTitle);
-    if (sortOption === "useful")
-      return (b.likes?.length || 0) - (a.likes?.length || 0);
+    if (sortOption === "useful") return (b.likes?.length || 0) - (a.likes?.length || 0);
     return 0;
   });
 
+  // paging
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
   const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
@@ -157,68 +226,44 @@ export default function Posts() {
 
   return (
     <div className="container my-4">
+      {/* Chèn CSS tĩnh */}
+      <style>{STATIC_ACTIONS_CSS + STATIC_TABS_CSS}</style>
+
       <h3 className="mb-4">Chia sẻ trải nghiệm</h3>
 
       <button className="btn btn-primary mb-3" onClick={() => setShowModal(true)}>
         Đăng bài
       </button>
 
-      {/* Tabs */}
-      <ul className="nav nav-tabs mb-3">
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "all" ? "active" : ""}`}
-            onClick={() => setActiveTab("all")}
-          >
-            Tất cả
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "mine" ? "active" : ""}`}
-            onClick={() => setActiveTab("mine")}
-          >
-            Bài viết của tôi
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "useful" ? "active" : ""}`}
-            onClick={() => setActiveTab("useful")}
-          >
-            Bài viết hữu ích
-          </button>
-        </li>
-      </ul>
-
-      {/* Thanh tìm kiếm + sort */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <input
-          type="text"
-          className="form-control w-50"
-          placeholder="Tìm kiếm..."
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
-        />
-        <select
-          className="form-select w-auto ms-2"
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
+      {/* Tabs tĩnh (không hiệu ứng) */}
+      <div className="ptabs" role="tablist">
+        <button
+          type="button"
+          className={`ptab ${activeTab === "all" ? "active" : ""}`}
+          onClick={() => switchTab("all")}
         >
-          <option value="newest">Mới nhất</option>
-          <option value="oldest">Cũ nhất</option>
-          <option value="alphabet">Theo chữ cái</option>
-          <option value="useful">Hữu ích nhất</option>
-        </select>
+          Tất cả
+        </button>
+        <button
+          type="button"
+          className={`ptab ${activeTab === "mine" ? "active" : ""}`}
+          onClick={() => switchTab("mine")}
+        >
+          Bài viết của tôi
+        </button>
+        <button
+          type="button"
+          className={`ptab ${activeTab === "useful" ? "active" : ""}`}
+          onClick={() => switchTab("useful")}
+        >
+          Bài viết hữu ích
+        </button>
       </div>
 
-      {/* hiển thị posts */}
+      {/* Danh sách bài viết */}
       {currentPosts.map((post) => {
         const likesArray = Array.isArray(post.likes) ? post.likes : [];
-        const isLiked = user && likesArray.includes(user.id);
+        const isLiked = !!user && likesArray.includes(user.id);
 
         return (
           <div
@@ -226,7 +271,7 @@ export default function Posts() {
             className="card mb-3 shadow-sm"
             style={{ maxWidth: "600px", margin: "0 auto" }}
           >
-            <div className="card-body">
+            <div className="card-body" style={{ overflow: "visible" }}>
               <div className="d-flex align-items-center mb-2">
                 <img
                   src={post.author.avatar || defaultAvatar}
@@ -242,6 +287,7 @@ export default function Posts() {
                   </small>
                 </div>
               </div>
+
               <h5>{post.jobTitle}</h5>
               <p className="text-muted">{post.company}</p>
               <p>{post.content.slice(0, 100)}...</p>
@@ -260,25 +306,25 @@ export default function Posts() {
                 />
               )}
 
-              <div className="d-flex gap-2">
-                <Link to={`/posts/${post.id}`} className="btn btn-outline-primary btn-sm">
+              {/* 3 nút tĩnh */}
+              <div className="pa-row">
+                <Link to={`/posts/${post.id}`} className="pa-btn pa-btn--view">
                   Xem chi tiết
                 </Link>
+
                 <button
-                  className={`btn btn-sm ${isLiked ? "btn-success" : "btn-outline-success"
-                    }`}
+                  className={`pa-btn pa-btn--like ${isLiked ? "is-on" : ""}`}
                   onClick={() => handleLike(post.id)}
                 >
                   Hữu ích ({likesArray.length})
                 </button>
-                {user && post.author?.name !== user.profile?.fullName && (
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => handleReport(post.id)}
-                  >
-                    Báo cáo
-                  </button>
-                )}
+
+                <button
+                  className="pa-btn pa-btn--report"
+                  onClick={() => handleReport(post.id)}
+                >
+                  Báo cáo
+                </button>
               </div>
             </div>
           </div>
@@ -291,7 +337,7 @@ export default function Posts() {
         onPageChange={setCurrentPage}
       />
 
-      {/* Modal thêm bài mới */}
+      {/* Modal đăng bài */}
       {showModal && (
         <div
           className="modal fade show"
@@ -386,12 +432,56 @@ export default function Posts() {
           </div>
         </div>
       )}
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <form onSubmit={handleReportSubmit}>
+                <div className="modal-header">
+                  <h5 className="modal-title">Báo cáo bài viết</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowReportModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label">Lý do báo cáo</label>
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      value={reportData.reason}
+                      onChange={(e) =>
+                        setReportData({ ...reportData, reason: e.target.value })
+                      }
+                      placeholder="Vui lòng mô tả chi tiết lý do báo cáo bài viết này..."
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowReportModal(false)}
+                  >
+                    Hủy
+                  </button>
+                  <button type="submit" className="btn btn-danger">
+                    Gửi báo cáo
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-/* chọn ảnh  || bị mất khi render
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map((file) => URL.createObjectURL(file));
-    setFormData({ ...formData, images: [...formData.images, ...newImages] });
-  }; */

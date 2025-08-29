@@ -327,6 +327,17 @@ const admins = [
       email: "admin@gmail.com",
       image: admimg.ad1,
     }
+  },
+  {
+    id: 202,
+    username: "admin",
+    password: "admin",
+    role: "admin",
+    profile: {
+      fullName: "Admin",
+      email: "admin@huejob.com",
+      image: admimg.ad1,
+    }
   }
 ];
 

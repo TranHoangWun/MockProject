@@ -1,0 +1,657 @@
+.admin-dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #666;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #4a6bdf;
+}
+
+.admin-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.admin-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* User Management Section */
+.user-management-section {
+  grid-column: 1 / -1;  /* Make this section span all columns */
+}
+
+.user-tabs {
+  display: flex;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 15px;
+  margin-right: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+  color: #4a6bdf;
+  border-bottom: 2px solid #4a6bdf;
+}
+
+.users-table-container {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.users-table th, 
+.users-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.users-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.users-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Styles for user action buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sm {
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+}
+
+.btn-lock {
+  background-color: #ff9800;
+}
+
+.btn-unlock {
+  background-color: #4caf50;
+}
+
+.btn-delete {
+  background-color: #f44336;
+}
+
+.btn-sm:hover {
+  opacity: 0.9;
+}
+
+/* Status badge styles */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.status-badge.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.locked {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Locked user row style */
+.user-locked {
+  background-color: #fffde7;
+}
+
+.user-locked td {
+  opacity: 0.7;
+}
+
+/* Update user table to include action columns properly */
+.users-table th:last-child,
+.users-table td:last-child {
+  text-align: center;
+  min-width: 100px;
+}
+
+/* Job management styles */
+.job-management-section {
+  margin-top: 30px;
+  grid-column: 1 / -1;  /* Làm cho phần này chiếm toàn bộ chiều rộng */
+}
+
+/* Add job header row with space for buttons */
+.job-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Initialize button style */
+.btn-initialize {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.fa-spin {
+  animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.jobs-table-container {
+  margin-top: 15px;
+  overflow-x: auto;
+}
+
+.jobs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.jobs-table th, 
+.jobs-table td {
+  padding: 10px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.jobs-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.job-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.job-tabs .tab-btn {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.job-tabs .tab-btn.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.deleted {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.job-deleted {
+  background-color: #fff8f8;
+}
+
+.job-details-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table td {
+  padding: 8px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-table td:first-child {
+  width: 150px;
+  background-color: #f9f9f9;
+}
+
+.btn-view {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.job-detail-section {
+  margin-bottom: 20px;
+}
+
+.map-container {
+  height: 300px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Report management styles */
+.report-management-section {
+  margin-top: 30px;
+  grid-column: 1 / -1;
+}
+
+.report-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.report-tabs .tab-btn {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.report-tabs .tab-btn.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.reports-table-container {
+  margin-top: 15px;
+  overflow-x: auto;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reports-table th, 
+.reports-table td {
+  padding: 10px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.reports-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.report-resolved {
+  background-color: #f8f9fa;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.resolved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.btn-resolve {
+  background-color: #28a745;
+}
+
+.report-details-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.report-detail-section {
+  margin-bottom: 20px;
+}
+
+.report-detail-section h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.report-detail-section h5 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.report-reason {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #0d6efd;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+}
+
+.modal-footer .btn {
+  margin-left: 10px;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-secondary {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.me-2 {
+  margin-right: 0.5rem;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.report-details-modal {
+  background-color: white;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-modal-btn:hover {
+  color: #000;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+.report-detail-section {
+  margin-bottom: 25px;
+}
+
+.report-detail-section h4 {
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.detail-table {
+  width: 100%;
+}
+
+.detail-table td {
+  padding: 8px 12px;
+  vertical-align: top;
+}
+
+.detail-table td:first-child {
+  width: 30%;
+  background-color: #f9f9f9;
+}
+
+.report-reason {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #6c757d;
+}
+
+.report-reason p {
+  margin-bottom: 8px;
+}
+
+.report-reason p:last-child {
+  margin-bottom: 0;
+}
+
+.me-1 {
+  margin-right: 0.25rem;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+/* Styling for message report components */
+.message-content-box {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  max-height: 150px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.report-detail-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.report-detail-section:last-child {
+  border-bottom: none;
+}
+
+.report-detail-section h4 {
+  color: #0d6efd;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}

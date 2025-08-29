@@ -18,30 +18,18 @@ function AdminDashboard() {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [jobFilter, setJobFilter] = useState('all'); // 'all', 'active', 'deleted'
   const [isInitializing, setIsInitializing] = useState(false);
-  const [reportType, setReportType] = useState('job');  // 'job', 'post'
-  const [reports, setReports] = useState({ job: [], post: [] });
+  // Thêm state cho quản lý báo cáo
+  const [reportType, setReportType] = useState('job');  // 'job', 'post', 'message'
+  const [reports, setReports] = useState({ job: [], post: [], message: [] });
   const [selectedReport, setSelectedReport] = useState(null);
   const [showReportDetails, setShowReportDetails] = useState(false);
   const [isInitializingReports, setIsInitializingReports] = useState(false);
 
+  // Load all data on component mount
   useEffect(() => {
     loadUsers();
     loadJobListings();
     loadAllReports();
-  }, []);
-
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'jobReports' || e.key === 'postReports') {
-        console.log("Report data changed, refreshing reports list");
-        loadAllReports();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, []);
 
   const loadUsers = () => {
@@ -113,7 +101,7 @@ function AdminDashboard() {
     try {
       const result = checkAndInitializeReports();
       if (result.success) {
-        alert(`Thành công! Đã tạo dữ liệu báo cáo mẫu:\n- Báo cáo bài đăng: ${result.counts.job}\n- Báo cáo bài viết: ${result.counts.post}`);
+        alert(`Thành công! Đã tạo dữ liệu báo cáo mẫu:\n- Báo cáo bài đăng: ${result.counts.job}\n- Báo cáo bài viết: ${result.counts.post}\n- Báo cáo tin nhắn: ${result.counts.message}`);
         loadAllReports();
       } else {
         alert(`Không thể tạo dữ liệu báo cáo mẫu: ${result.message}`);
@@ -201,47 +189,54 @@ function AdminDashboard() {
       ? jobListings.filter(job => job.status !== 'Đã xóa')
       : jobListings.filter(job => job.status === 'Đã xóa');
 
+  // Filter users by role - Define these variables
   const students = users.filter(user => user.role === "student");
   const employers = users.filter(user => user.role === "employer");
 
+  // Add loadAllReports function
   const loadAllReports = () => {
     try {
+      // Tải báo cáo bài đăng
       const jobReports = JSON.parse(localStorage.getItem("jobReports") || '[]');
+      // Tải báo cáo bài viết
       const postReports = JSON.parse(localStorage.getItem("postReports") || '[]');
+      // Tải báo cáo tin nhắn
+      const messageReports = JSON.parse(localStorage.getItem("messageReports") || '[]');
 
+      // Làm giàu dữ liệu báo cáo với thông tin người dùng
       const allUsers = JSON.parse(localStorage.getItem("users") || '[]');
 
-      const enrichedJobReports = jobReports.map(report => {
-        const reporter = allUsers.find(u => u.id === report.reporterId);
-        const reportedUser = allUsers.find(u => u.id === report.reportedUserId);
-        
-        return {
-          ...report,
-          reporterName: report.reporterName || reporter?.profile?.fullName || reporter?.username || "Không xác định",
-          reportedName: report.reportedName || reportedUser?.profile?.fullName || reportedUser?.profile?.companyName || reportedUser?.username || "Không xác định"
-        };
-      });
+      const enrichedJobReports = jobReports.map(report => ({
+        ...report,
+        reporter: allUsers.find(u => u.id === report.reporterId) || { username: "Người dùng không xác định" },
+        reportedUser: allUsers.find(u => u.id === report.reportedUserId) || { username: "Người dùng không xác định" }
+      }));
 
-      const enrichedPostReports = postReports.map(report => {
-        const reporter = allUsers.find(u => u.id === report.reporterId);
-        const reportedUser = allUsers.find(u => u.id === report.reportedUserId);
-        
-        return {
-          ...report,
-          reporterName: report.reporterName || reporter?.profile?.fullName || reporter?.username || "Không xác định",
-          reportedName: report.reportedName || reportedUser?.profile?.fullName || reportedUser?.profile?.companyName || reportedUser?.username || "Không xác định"
-        };
-      });
+      const enrichedPostReports = postReports.map(report => ({
+        ...report,
+        reporter: allUsers.find(u => u.id === report.reporterId) || { username: "Người dùng không xác định" },
+        reportedUser: allUsers.find(u => u.id === report.reportedUserId) || { username: "Người dùng không xác định" }
+      }));
 
+      const enrichedMessageReports = messageReports.map(report => ({
+        ...report,
+        reporter: allUsers.find(u => u.id === report.reporterId) || { username: "Người dùng không xác định" },
+        reportedUser: allUsers.find(u => u.id === report.reportedUserId) || { username: "Người dùng không xác định" }
+      }));
+
+      // Cập nhật state
       setReports({
         job: enrichedJobReports,
-        post: enrichedPostReports
+        post: enrichedPostReports,
+        message: enrichedMessageReports
       });
+
     } catch (error) {
       console.error("Error loading reports:", error);
     }
   };
 
+  // Add formatDate utility function
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -254,25 +249,31 @@ function AdminDashboard() {
     });
   };
 
+  // Add handleViewReportDetails function
   const handleViewReportDetails = (report) => {
     setSelectedReport(report);
     setShowReportDetails(true);
   };
 
+  // Add handleMarkReportAsResolved function
   const handleMarkReportAsResolved = (report) => {
     try {
       const reportId = report.id;
       const reportCollection = 
-        report.type === 'job' ? 'jobReports' : 'postReports';
+        reportType === 'job' ? 'jobReports' :
+        reportType === 'post' ? 'postReports' : 'messageReports';
 
       const allReports = JSON.parse(localStorage.getItem(reportCollection) || '[]');
       
+      // Tìm và cập nhật báo cáo
       const updatedReports = allReports.map(r => 
         r.id === reportId ? {...r, status: 'resolved', resolvedAt: new Date().toISOString()} : r
       );
       
+      // Lưu lại
       localStorage.setItem(reportCollection, JSON.stringify(updatedReports));
       
+      // Cập nhật state
       loadAllReports();
       
       alert("Đã đánh dấu báo cáo là đã xử lý!");
@@ -283,36 +284,28 @@ function AdminDashboard() {
     }
   };
 
+  // Add handleDeleteReport function
   const handleDeleteReport = (report) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa báo cáo này?")) {
       try {
-        // Determine collection based on report type
-        const reportCollection = report.type || reportType;
-        const storageKey = reportCollection === 'job' ? 'jobReports' : 'postReports';
+        const reportId = report.id;
+        const reportCollection = 
+          reportType === 'job' ? 'jobReports' :
+          reportType === 'post' ? 'postReports' : 'messageReports';
+
+        const allReports = JSON.parse(localStorage.getItem(reportCollection) || '[]');
         
-        // Get current reports from localStorage
-        const allReports = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        // Lọc bỏ báo cáo cần xóa
+        const updatedReports = allReports.filter(r => r.id !== reportId);
         
-        // Find the index of the report to delete
-        const index = allReports.findIndex(r => 
-          (report.id && r.id === report.id) || 
-          (r.reason === report.reason && r.createdAt === report.createdAt)
-        );
+        // Lưu lại
+        localStorage.setItem(reportCollection, JSON.stringify(updatedReports));
         
-        if (index !== -1) {
-          // Remove the report
-          allReports.splice(index, 1);
-          
-          // Save back to localStorage
-          localStorage.setItem(storageKey, JSON.stringify(allReports));
-          
-          // Update UI - reload all reports to ensure UI is in sync
-          loadAllReports();
-          
-          alert("Đã xóa báo cáo thành công!");
-        } else {
-          alert("Không tìm thấy báo cáo cần xóa!");
-        }
+        // Cập nhật state
+        loadAllReports();
+        
+        alert("Đã xóa báo cáo thành công!");
+        
       } catch (error) {
         console.error("Error deleting report:", error);
         alert("Có lỗi xảy ra khi xóa báo cáo!");
@@ -320,14 +313,10 @@ function AdminDashboard() {
     }
   };
 
+  // Define handleLogout function
   const handleLogout = () => {
     logout();
     navigate("/login");
-  };
-
-  const handleCloseReportDetails = () => {
-    setShowReportDetails(false);
-    setSelectedReport(null);
   };
 
   return (
@@ -494,6 +483,7 @@ function AdminDashboard() {
           <div className="job-header-row">
             <h3>Quản lý tin tuyển dụng</h3>
 
+            {/* Thêm nút tạo dữ liệu mẫu */}
             {jobStats.active === 0 && (
               <button 
                 className="btn btn-primary btn-initialize"
@@ -604,6 +594,12 @@ function AdminDashboard() {
             >
               Báo cáo bài viết ({reports.post.length})
             </button>
+            <button 
+              className={`tab-btn ${reportType === 'message' ? 'active' : ''}`}
+              onClick={() => setReportType('message')}
+            >
+              Báo cáo tin nhắn ({reports.message.length})
+            </button>
           </div>
 
           <div className="reports-table-container">
@@ -625,8 +621,8 @@ function AdminDashboard() {
                     <tr key={report.id} className={report.status === 'resolved' ? 'report-resolved' : ''}>
                       <td>{report.id}</td>
                       <td>{report.reason.length > 30 ? report.reason.substring(0, 30) + '...' : report.reason}</td>
-                      <td>{report.reporterName || "Không xác định"}</td>
-                      <td>{report.reportedName || "Không xác định"}</td>
+                      <td>{report.reporter.username || 'Không xác định'}</td>
+                      <td>{report.reportedUser.username || 'Không xác định'}</td>
                       <td>{formatDate(report.createdAt)}</td>
                       <td>
                         <span className={`status-badge ${report.status === 'resolved' ? 'resolved' : 'pending'}`}>
@@ -671,173 +667,16 @@ function AdminDashboard() {
             </table>
           </div>
         </div>
+
+        <div className="admin-section">
+          <h3>Cài đặt hệ thống</h3>
+          <p>Chức năng đang phát triển...</p>
+        </div>
       </div>
 
       <button className="btn btn-danger mt-3" onClick={handleLogout}>
         Đăng xuất
       </button>
-
-      {showReportDetails && selectedReport && (
-        <div className="modal-overlay" onClick={handleCloseReportDetails}>
-          <div className="report-details-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h5 className="modal-title">Chi tiết báo cáo #{selectedReport.id}</h5>
-              <button 
-                className="close-modal-btn" 
-                onClick={handleCloseReportDetails}
-              >
-                &times;
-              </button>
-            </div>
-            
-            <div className="modal-content">
-              <div className="report-detail-section">
-                <h4>Thông tin báo cáo</h4>
-                <table className="detail-table">
-                  <tbody>
-                    <tr>
-                      <td><strong>Loại báo cáo:</strong></td>
-                      <td>
-                        {selectedReport.type === 'job' && 'Báo cáo bài đăng việc làm'}
-                        {selectedReport.type === 'post' && 'Báo cáo bài viết'}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><strong>Người báo cáo:</strong></td>
-                      <td>{selectedReport.reporterName || selectedReport.reporter?.profile?.fullName || selectedReport.reporter?.username || 'Không xác định'}</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Người bị báo cáo:</strong></td>
-                      <td>{selectedReport.reportedName || selectedReport.reportedUser?.profile?.fullName || selectedReport.reportedUser?.username || 'Không xác định'}</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Thời gian báo cáo:</strong></td>
-                      <td>{formatDate(selectedReport.createdAt)}</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Trạng thái:</strong></td>
-                      <td>
-                        <span className={`status-badge ${selectedReport.status === 'resolved' ? 'resolved' : 'pending'}`}>
-                          {selectedReport.status === 'resolved' ? 'Đã xử lý' : 'Đang chờ xử lý'}
-                        </span>
-                      </td>
-                    </tr>
-                    {selectedReport.resolvedAt && (
-                      <tr>
-                        <td><strong>Thời gian xử lý:</strong></td>
-                        <td>{formatDate(selectedReport.resolvedAt)}</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="report-detail-section">
-                <h4>Nội dung báo cáo</h4>
-                <div className="report-reason">
-                  <p><strong>Lý do:</strong> {selectedReport.reason}</p>
-                  {selectedReport.description && (
-                    <p><strong>Mô tả chi tiết:</strong> {selectedReport.description}</p>
-                  )}
-                </div>
-              </div>
-              
-              {selectedReport.type === 'post' && (
-                <div className="report-detail-section">
-                  <h4>Thông tin bài viết bị báo cáo</h4>
-                  <table className="detail-table">
-                    <tbody>
-                      <tr>
-                        <td><strong>ID bài viết:</strong></td>
-                        <td>{selectedReport.postId}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Tiêu đề:</strong></td>
-                        <td>{selectedReport.postTitle || 'Không có tiêu đề'}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Nội dung:</strong></td>
-                        <td>{selectedReport.postContent || 'Không có nội dung'}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  
-                  <div className="mt-3">
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => window.open(`/posts/${selectedReport.postId}`, '_blank')}
-                    >
-                      Xem bài viết
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {selectedReport.type === 'job' && (
-                <div className="report-detail-section">
-                  <h4>Thông tin bài đăng việc làm bị báo cáo</h4>
-                  <table className="detail-table">
-                    <tbody>
-                      <tr>
-                        <td><strong>ID bài đăng:</strong></td>
-                        <td>{selectedReport.jobId}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Tiêu đề:</strong></td>
-                        <td>{selectedReport.jobTitle || 'Không có tiêu đề'}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Công ty:</strong></td>
-                        <td>{selectedReport.companyName || 'Không có thông tin'}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  
-                  <div className="mt-3">
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => window.open(`/jobs/${selectedReport.jobId}`, '_blank')}
-                    >
-                      Xem bài đăng
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="modal-footer">
-              {selectedReport.status !== 'resolved' && (
-                <button 
-                  className="btn btn-success"
-                  onClick={() => {
-                    handleMarkReportAsResolved(selectedReport);
-                    handleCloseReportDetails();
-                  }}
-                >
-                  <FaCheck className="me-1" /> Đánh dấu đã xử lý
-                </button>
-              )}
-              
-              <button 
-                className="btn btn-danger"
-                onClick={() => {
-                  handleDeleteReport(selectedReport);
-                  handleCloseReportDetails();
-                }}
-              >
-                <FaTrash className="me-1" /> Xóa báo cáo
-              </button>
-              
-              <button 
-                className="btn btn-secondary"
-                onClick={handleCloseReportDetails}
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

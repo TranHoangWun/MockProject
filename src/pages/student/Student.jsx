@@ -1,5 +1,5 @@
 // pages/Student.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Banner from "components/layout/banner/Banner.jsx";
 import JobList from "components/joblist/JobList.jsx";
 import Pagination from "components/pagination/Pagination.jsx";
@@ -9,6 +9,7 @@ import appliedJobsSeed from "data/appliedJobs";
 import SearchBar from "components/searchbar/SearchBar.jsx";
 import { useAuth } from "context/AuthContext.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { filterInvalidStaticJobs, cleanupDeletedJobApplications } from "../../utils/jobUtils";
 
 // Utils localStorage
 const LS_SAVED_KEY = "savedJobs";
@@ -48,6 +49,142 @@ function StudentDashboard() {
   // token để JobList báo thay đổi (tim/ứng tuyển) -> re-render & tính lại lọc/phân trang
   const [changeToken, setChangeToken] = useState(0);
   const handleDataChange = () => setChangeToken((t) => t + 1);
+
+  // Thêm state để lưu trữ công việc từ employerJobs
+  const [employerJobs, setEmployerJobs] = useState([]);
+
+  // Tải dữ liệu công việc từ localStorage khi component mounts hoặc changeToken thay đổi
+  useEffect(() => {
+    try {
+      const allEmployerJobs = JSON.parse(localStorage.getItem('employerJobs') || '[]');
+      // Get IDs of both deleted jobs and permanently deleted jobs
+      const deletedJobIds = JSON.parse(localStorage.getItem('deletedJobs') || '[]')
+        .map(job => job.id);
+      
+      // Also check for individually marked permanently deleted jobs
+      const permanentlyDeletedJobIds = [];
+      for(let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if(key && key.startsWith('job_') && key.endsWith('_permanently_deleted')) {
+          const jobId = parseInt(key.replace('job_', '').replace('_permanently_deleted', ''));
+          if(!isNaN(jobId)) {
+            permanentlyDeletedJobIds.push(jobId);
+          }
+        }
+      }
+      
+      // Combine all deleted job IDs
+      const allDeletedJobIds = [...new Set([...deletedJobIds, ...permanentlyDeletedJobIds])];
+      
+      // Get list of active employers
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const activeEmployerIds = users
+        .filter(u => u.role === 'employer' && !u.isLocked)
+        .map(u => u.id.toString());
+      
+      // Filter active jobs more strictly
+      const activeJobs = allEmployerJobs.filter(job => {
+        const jobEmployerId = job.employerId?.toString();
+        const isActive = job.status === 'Đang đăng';
+        const hasValidEmployer = jobEmployerId && activeEmployerIds.includes(jobEmployerId);
+        const isNotDeleted = !allDeletedJobIds.includes(job.id);
+        
+        return isActive && hasValidEmployer && isNotDeleted;
+      });
+      
+      console.log("Active jobs after strict filtering:", activeJobs.length, "jobs");
+      
+      // Chuyển đổi định dạng để phù hợp với cấu trúc dữ liệu công việc hiện có
+      const formattedJobs = activeJobs.map(job => ({
+        id: job.id,
+        title: job.jobTitle || job.title, // Accept both field names
+        company: job.companyName || "Nhà tuyển dụng",
+        type: job.employmentType || "Toàn thời gian",
+        location: job.location || job.district || "Huế",
+        description: job.description || "Không có mô tả",
+        salary: job.salaryRange || "Thỏa thuận",
+        requirements: job.requirements || "",
+        employerId: job.employerId,
+        logo: job.companyLogo || null,
+        deadline: job.deadline || "Chưa cập nhật",
+        publication_date: job.date || "Chưa cập nhật",
+        contactEmail: job.contactEmail,
+        contactPhone: job.contactPhone
+      }));
+      
+      console.log("Formatted jobs for display:", formattedJobs.length, "jobs");
+      
+      setEmployerJobs(formattedJobs);
+    } catch (error) {
+      console.error("Lỗi khi tải công việc từ nhà tuyển dụng:", error);
+    }
+  }, [changeToken]);
+
+  // Add a useEffect to listen for user data changes and refresh jobs
+  useEffect(() => {
+    // Listen for data changes from any component
+    const handleDataChange = () => {
+      console.log("Data change detected, refreshing jobs");
+      setChangeToken(prev => prev + 1);
+    };
+
+    // Listen for storage changes (in case another tab changes user data)
+    const handleStorageChange = (e) => {
+      if (e.key === 'users' || e.key === 'employerJobs' || e.key === 'jobsLastUpdated') {
+        console.log("Storage change detected, refreshing jobs");
+        setChangeToken(prev => prev + 1);
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('dataChanged', handleDataChange);
+    window.addEventListener('storage', handleStorageChange);
+
+    // Run cleanup once on mount
+    const cleanupOnMount = async () => {
+      const { cleanupOrphanedJobs } = await import('../../utils/storageCleanup');
+      const result = cleanupOrphanedJobs();
+      if (result.removed > 0) {
+        console.log(`Cleanup removed ${result.removed} jobs, refreshing...`);
+        setChangeToken(prev => prev + 1);
+      }
+    };
+    
+    cleanupOnMount();
+
+    return () => {
+      window.removeEventListener('dataChanged', handleDataChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Kết hợp dữ liệu công việc từ cả hai nguồn
+  const allJobs = useMemo(() => {
+    // Filter out static jobs that don't have valid employers
+    const validStaticJobs = filterInvalidStaticJobs(jobs);
+    console.log(`Filtered static jobs: ${validStaticJobs.length}/${jobs.length}`);
+    
+    // Sử dụng Map để xử lý trùng lặp (nếu có) dựa trên ID
+    const jobMap = new Map();
+    
+    // Thêm jobs từ dữ liệu tĩnh (đã lọc)
+    validStaticJobs.forEach(job => jobMap.set(job.id, job));
+    
+    // Thêm hoặc ghi đè với jobs từ nhà tuyển dụng
+    employerJobs.forEach(job => jobMap.set(job.id, job));
+    
+    return Array.from(jobMap.values());
+  }, [employerJobs]);
+
+  // Add a useEffect to perform complete cleanup on mount
+  useEffect(() => {
+    const { completeJobDataCleanup } = require("../../utils/jobUtils");
+    const result = completeJobDataCleanup();
+    if (result.removedJobs > 0) {
+      console.log(`Cleaned up ${result.removedJobs} orphaned jobs`);
+      setChangeToken(prev => prev + 1);
+    }
+  }, []);
 
   // Reset filter khi là student (giống code gốc)
   React.useEffect(() => {
@@ -96,7 +233,7 @@ function StudentDashboard() {
   }, [allApplied, currentUserId]);
 
   // ====== Lọc & sắp xếp như cũ ======
-  let filteredJobs = jobs.filter(
+  let filteredJobs = allJobs.filter(
     (job) =>
       (job.title.toLowerCase().includes(lowerKeyword) ||
         job.company.toLowerCase().includes(lowerKeyword) ||
@@ -146,37 +283,31 @@ function StudentDashboard() {
   }, [activeTab, JSON.stringify(filters), keyword]);
 
   return (
-    <>
+    <div className="student-dashboard">
       <Banner keyword={keyword} setKeyword={setKeyword} />
       <div className="container my-4">
+        {/* Make sure these filter tabs are visible */}
+        <div className="job-filter-tabs mb-3">
+          <button 
+            className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('all')}
+          >
+            Tất cả
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('saved')}
+          >
+            Đã lưu
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'applied' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('applied')}
+          >
+            Đã ứng tuyển
+          </button>
+        </div>
 
-        {/* Tabs: Tất cả / Đã lưu / Đã ứng tuyển */}
-        <ul className="nav nav-tabs mb-3">
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "all" ? "active" : ""}`}
-              onClick={() => setActiveTab("all")}
-            >
-              Tất cả
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "saved" ? "active" : ""}`}
-              onClick={() => setActiveTab("saved")}
-            >
-              Đã lưu
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "applied" ? "active" : ""}`}
-              onClick={() => setActiveTab("applied")}
-            >
-              Đã ứng tuyển
-            </button>
-          </li>
-        </ul>
         <SearchBar keyword={keyword} setKeyword={setKeyword} onSearch={handleSearch} />
         {currentJobs.length > 0 ? (
           <>
@@ -205,7 +336,7 @@ function StudentDashboard() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
